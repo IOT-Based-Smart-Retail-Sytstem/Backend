@@ -65,7 +65,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     // Generate a token for the Customer
     const token = await generateToken({ email: customer.email, id: customer._id });
-    customer.token = token;
+    res.cookie('token', token, { httpOnly: true });
 
     await customer.save();
 
