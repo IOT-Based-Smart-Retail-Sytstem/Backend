@@ -8,7 +8,7 @@ import 'reflect-metadata';
   },
 })
 @index({ email: 1 }, { unique: true }) 
-export class User {
+export class Customer {
   @prop({ required: true, trim: true })
   public firstName!: string;
 
@@ -36,5 +36,5 @@ export class User {
 }
 
 // Create a Typegoose model
-const UserModel = getModelForClass(User);
-export default UserModel;
+const CustomerModel = getModelForClass(Customer);
+export default CustomerModel;

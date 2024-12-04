@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import bcrypt  from 'bcrypt'
-import User from '../models/customer';
+import Customer from '../models/customer';
 import { FAIL, SUCCESS, ERROR } from '../utils/httpStatusText';
 import generateToken from '../utils/generateToken';
 
@@ -14,18 +14,18 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Check if user already exists
-    const oldUser = await User.findOne({ email });
-    if (oldUser) {
-      res.status(400).json({ status: FAIL, message: 'User already exists' });
+    // Check if Customer already exists
+    const oldCustomer = await Customer.findOne({ email });
+    if (oldCustomer) {
+      res.status(400).json({ status: FAIL, message: 'Customer already exists' });
       return;
     }
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create and save a new user
-    const newUser = new User({
+    // Create and save a new Customer
+    const newCustomer = new Customer({
       firstName,
       lastName,
       email,
@@ -33,13 +33,13 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       verified: true, 
     });
 
-    // Generate a token for the user
-    const token = await generateToken({ email: newUser.email, id: newUser._id });
-    newUser.token = token;
+    // Generate a token for the Customer
+    const token = await generateToken({ email: newCustomer.email, id: newCustomer._id });
+    newCustomer.token = token;
 
-    await newUser.save();
+    await newCustomer.save();
 
-    res.status(201).json({ status: SUCCESS, message: 'User registered successfully', data: newUser });
+    res.status(201).json({ status: SUCCESS, message: 'Customer registered successfully', data: newCustomer });
   } catch (error: any) {
     res.status(400).json({ status: ERROR, message: error.message });
   }
