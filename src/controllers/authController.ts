@@ -1,9 +1,8 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt'
 import Customer from '../models/customer';
-import { FAIL, SUCCESS, ERROR } from '../utils/httpStatusText';
+import { Code, Status } from '../utils/httpStatus';
 import generateToken from '../utils/generateToken';
-import { log } from 'console';
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -11,14 +10,14 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     // Check if password and confirmPassword match
     if (password !== confirmPassword) {
-      res.status(400).json({ status: FAIL, message: 'Passwords do not match' });
+      res.status(Code.BadRequest).json({ status: Status.FAIL, message: 'Passwords do not match' });
       return;
     }
 
     // Check if Customer already exists
     const oldCustomer = await Customer.findOne({ email });
     if (oldCustomer) {
-      res.status(400).json({ status: FAIL, message: 'Customer already exists' });
+      res.status(Code.BadRequest).json({ status: Status.FAIL, message: 'Customer already exists' });
       return;
     }
 
@@ -40,9 +39,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     await newCustomer.save();
 
-    res.status(201).json({ status: SUCCESS, message: 'Customer registered successfully', data: newCustomer });
+    res.status(Code.Created).json({ status: Status.SUCCESS, message: 'Customer registered successfully', data: newCustomer });
   } catch (error: any) {
-    res.status(400).json({ status: ERROR, message: error.message });
+    res.status(Code.InternalServerError).json({ status: Status.ERROR, message: error.message });
   }
 };
 
@@ -53,14 +52,14 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     // Check if Customer exists
     const customer = await Customer.findOne({ email });
     if (!customer) {
-      res.status(400).json({ status: FAIL, message: 'Customer does not exist' });
+      res.status(Code.BadRequest).json({ status: Status.FAIL, message: 'Customer does not exist' });
       return;
     }
 
     // Check if password is correct
     const isPasswordCorrect = await bcrypt.compare(password, customer.password);
     if (!isPasswordCorrect) {
-      res.status(400).json({ status: FAIL, message: 'Invalid credentials' });
+      res.status(Code.BadRequest).json({ status: Status.FAIL, message: 'Invalid credentials' });
       return;
     }
 
@@ -70,10 +69,10 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     await customer.save();
 
-    res.status(200).json({ status: SUCCESS, message: 'Customer logged in successfully', data: customer });
+    res.status(Code.OK).json({ status: Status.SUCCESS, message: 'Customer logged in successfully', data: customer });
   }
   catch (error: any) {
-    res.status(400).json({ status: ERROR, message: error.message });
+    res.status(Code.InternalServerError).json({ status: Status.ERROR, message: error.message });
   }
 
 }
