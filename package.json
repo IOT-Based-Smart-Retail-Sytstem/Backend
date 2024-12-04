@@ -28,7 +28,7 @@
     "ts-node": "^10.9.2"
   },
   "scripts": {
-    "dev": "nodemon src/server.ts"
+    "start": "nodemon src/server.ts"
   },
   "keywords": [],
   "author": "",
