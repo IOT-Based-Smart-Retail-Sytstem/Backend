@@ -1,24 +1,19 @@
+require('dotenv').config()
 
-// Third Party Modules
-require('dotenv').config();
-import express from 'express';
-import http from 'http';
-import cors from 'cors';
+import express from 'express'
+import config from 'config'
+import connectToDb from './utils/connectToDb';
+import log from './utils/logger';
+import router from './routes'
 
-// Local Modules
-import authRouter from './routes/authRouter'
 
-// Express App
-const app = express();
+const app  = express()
 
-// Middlewares
-app.use(cors());
+app.use(express.json())
+app.use(router)
+const port  = config.get("port");
 
-// Setting up the bodyParser
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-
-// Routes
-app.use('/api/auth', authRouter)
-
-export default http.createServer(app);
+app.listen( port  , ()=>{
+    log.info(`App started at http://localhost:${port}`)
+    connectToDb()
+});
