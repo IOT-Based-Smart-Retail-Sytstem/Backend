@@ -13,7 +13,11 @@ app.use(express.json())
 app.use(router)
 const port  = config.get("port");
 
-app.listen( port  , ()=>{
-    log.info(`App started at http://localhost:${port}`)
-    connectToDb()
-});
+connectToDb().then(() => {
+    app.listen(port, () => {
+        log.info(`Server is running at http://localhost:${port}`)
+    })
+}).catch((e) => {
+    log.error(e)
+    process.exit(1)
+})
