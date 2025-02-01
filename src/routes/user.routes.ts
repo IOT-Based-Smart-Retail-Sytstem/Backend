@@ -1,7 +1,7 @@
 import express from 'express' ;
 import validateResource from '../middlware/validateResource';
 import { createUserSchema, verifyUserSchema } from '../schema/user.schema';
-import { createUserHandler, verifyUserHandler } from '../controller/user.controller';
+import { createUserHandler, verifyUserHandler } from '../controllers/user.controller';
 const router  = express.Router()
 
 
