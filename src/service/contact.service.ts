@@ -2,7 +2,6 @@ import ContactModel, {Contact} from "../models/contact.model";
 import { Request } from "express";
 
 export async function createContact(input: Partial<Contact>) {
-  console.log(input);
   return ContactModel.create(input);
 }
 

@@ -4,14 +4,15 @@ import log from '../utils/logger';
 
 export async function createContactHandler(req: Request, res: Response) {
     const body = req.body;
-    body.createdAT = new Date();
-    console.log(body);
     try {
         const contact = await createContact(body);
-        res.send(contact);
+        res.status(201).json({
+            success: true,
+            message: "Contact created successfully",
+            data: contact
+        })
     } catch (e: any) {
-        log.error(e);
-        res.status(500);
+        throw e;
     }
 }
 
@@ -21,8 +22,7 @@ export async function getContactHandler(req: Request, res: Response) {
         const contact = await getContactById(contactId);
         res.send(contact);
     } catch (e: any) {
-        log.error(e);
-        res.status(500);
+        throw e;
     }
 }
 
@@ -31,7 +31,6 @@ export async function getAllContactsHandler(req: Request, res: Response) {
         const contacts = await getAllContacts(req);
         res.send(contacts);
     } catch (e: any) {
-        log.error(e);
-        res.status(500);
+        throw e;
     }
 }
