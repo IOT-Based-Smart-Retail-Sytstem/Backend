@@ -6,14 +6,18 @@ import connectToDb from './utils/connectToDb';
 import log from './utils/logger';
 import router from './routes'
 import {errorHandler} from './middlware/error.handler';
+import deserializeUser from './middlware/deserializeUser';
 
 
 const app  = express()
 
-app.use(express.json())
-app.use(router)
+app.use(express.json());
 
-app.use(errorHandler)
+app.use(deserializeUser);
+
+app.use(router);
+
+app.use(errorHandler);
 
 
 const port  = config.get("port");
