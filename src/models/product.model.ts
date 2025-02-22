@@ -1,8 +1,8 @@
-import { getModelForClass, Prop } from "@typegoose/typegoose";
+import { getModelForClass, prop, Prop } from "@typegoose/typegoose";
 
-class Product {
+export class Product {
     @Prop({ required: true })
-    name: string
+    title: string
 
     @Prop({ required: true })
     price: number
@@ -11,10 +11,10 @@ class Product {
     description: string
 
     @Prop({ required: true })
-    image: string
+    image_url: string
 
     @Prop({ required: true })
-    category: string
+    categories: string[]
 
     @Prop({ required: true })
     barcode: string
@@ -22,8 +22,14 @@ class Product {
     @Prop({ required: true })
     stock: number
 
+    @prop({ required: true})
+    item_weight: string
+
     @Prop({ required: false, default: 0 })
     discount: number
+
+    @Prop({ required: false, default: [] })
+    images: string[]
 
     @Prop({ required: false, default: Date.now })
     createdAt: Date

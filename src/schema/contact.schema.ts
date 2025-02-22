@@ -1,4 +1,3 @@
-import { TimeStamps } from '@typegoose/typegoose/lib/defaultClasses'
 import {object, string, TypeOf} from 'zod'
 
 export const contactSchema = object({
