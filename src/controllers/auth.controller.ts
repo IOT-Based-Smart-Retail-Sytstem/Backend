@@ -52,21 +52,17 @@ export async function createSessionHandler(
 
   return res
   .cookie("refreshToken", refreshToken, {
-      httpOnly: true,   // لا يمكن الوصول إليه من الـ JavaScript
-      secure: true,     // مطلوب عند استخدام HTTPS
-      sameSite: "strict", // يمنع إرسال الكوكيز مع الطلبات الخارجية
-      maxAge: 7 * 24 * 60 * 60 * 1000 // مدة الصلاحية: 7 أيام
+      httpOnly: true,   
+      secure: true,    
+      sameSite: "strict", 
+      maxAge: 7 * 24 * 60 * 60 * 1000 
   })
   .status(Code.OK)
   .json({
       status: Status.SUCCESS,
-      accessToken, // نُرسل فقط الـ accessToken في الـ JSON
+      accessToken, 
   });
-  // return res.status(Code.OK).json({
-  //   status: Status.SUCCESS,
-  //   accessToken,
-  //   refreshToken,
-  // });
+ 
 }
 
 
