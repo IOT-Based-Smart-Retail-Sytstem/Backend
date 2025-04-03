@@ -8,9 +8,13 @@ import router from './routes'
 import {errorHandler} from './middlware/error.handler';
 import deserializeUser from './middlware/deserializeUser';
 import cookieParser from "cookie-parser";
+import cors from 'cors'
 
 
 const app  = express()
+
+// configure cors
+app.use(cors());
 
 app.use(express.json());
 
