@@ -8,7 +8,6 @@ import { nanoid } from "nanoid";
 import { Code, Status } from "../utils/httpStatus";
 import generateToken from "../utils/generateToken";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
 import * as argon2 from 'argon2';
 import UserModel from '../models/user.model';
 dotenv.config();
