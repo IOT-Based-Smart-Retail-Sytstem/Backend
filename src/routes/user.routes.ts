@@ -1,8 +1,10 @@
 import express from 'express' ;
 import validateResource from '../middlware/validateResource';
 import { createUserSchema, forgotPasswordSchema, resetPasswordSchema, verifyUserSchema } from '../schema/user.schema';
-import { createUserHandler, forgotPasswordHandler, getCurrentUserHandler, resetPasswordHandler, verifyUserHandler } from '../controllers/user.controller';
+import { createUserHandler, forgotPasswordHandler, getCurrentUserHandler, resendVerificationCode, resetPasswordHandler, verifyResetCode, verifyUserHandler } from '../controllers/user.controller';
 import requireUser from '../middlware/requireUser';
+import { requireRole } from "../middlware/requireRole";
+
 const router  = express.Router()
 
 
@@ -13,8 +15,8 @@ router.post(
 );
 
 router.post(
-    "/api/users/verify/:id/:verificationCode",
-    validateResource(verifyUserSchema),
+    "/api/users/verify",
+     validateResource(verifyUserSchema),
     verifyUserHandler
   );
 
@@ -23,13 +25,27 @@ router.post(
     validateResource(forgotPasswordSchema),
     forgotPasswordHandler
   );
+router.post(
+    "/api/users/VerifyResetCode",
+    verifyResetCode 
+  );
 
 router.post(
-    "/api/users/resetpassword/:id/:passwordResetCode",
-    validateResource(resetPasswordSchema),
+    "/api/users/resetpassword",
+    // KvalidateResource(resetPasswordSchema),
     resetPasswordHandler
   );
 
-router.get("/api/users/me", requireUser, getCurrentUserHandler);
+// في user.routes.ts
+router.get(
+  "/api/users/resend-verification",
+resendVerificationCode);
+
+router.get(
+    "/api/users/me", 
+    requireUser,    
+    requireRole(['admin']),
+    getCurrentUserHandler
+);
 
 export default router 
