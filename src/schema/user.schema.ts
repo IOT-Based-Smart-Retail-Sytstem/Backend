@@ -17,6 +17,12 @@ export const createUserSchema = object({
       email: string({
         required_error: "Email is required",
       }).email("Not a valid email"),
+      phoneNumber: string({
+        required_error: "Phone number is required",
+      }).regex(/^[0-9]{10,15}$/, "Invalid phone number format"),
+     
+      role: string().optional().default('user'),
+
     }).refine((data) => data.password === data.passwordConfirmation, {
       message: "Passwords do not match",
       path: ["passwordConfirmation"],
@@ -24,8 +30,7 @@ export const createUserSchema = object({
 });
 
 export const verifyUserSchema = object({
-  params: object({
-    id: string(),
+  body: object({
     verificationCode: string(),
   }),
 });
@@ -39,11 +44,13 @@ export const forgotPasswordSchema = object({
 });
 
 export const resetPasswordSchema = object({
-  params: object({
-    id: string(),
-    passwordResetCode: string(),
-  }),
   body: object({
+    email: string({
+      required_error: "Email is required",
+    }).email("Invalid email format"),
+    passwordResetCode: string({
+      required_error: "Password reset code is required",
+    }),
     password: string({
       required_error: "Password is required",
     }).min(6, "Password is too short - should be min 6 chars"),
@@ -58,7 +65,7 @@ export const resetPasswordSchema = object({
 
 export type CreateUserInput = TypeOf<typeof createUserSchema>["body"];
 
-export type VerifyUserInput = TypeOf<typeof verifyUserSchema>["params"];
+export type VerifyUserInput = TypeOf<typeof verifyUserSchema>["body"];
 
 export type ForgotPasswordInput = TypeOf<typeof forgotPasswordSchema>["body"];
 
