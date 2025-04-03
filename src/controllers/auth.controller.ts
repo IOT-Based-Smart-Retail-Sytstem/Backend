@@ -1,7 +1,7 @@
 import { DocumentType } from "@typegoose/typegoose";
 import { Request, Response } from "express";
 import { get } from "lodash";
-import { User } from "../models/user.model";
+import {User} from "../models/user.model";
 import { CreateSessionInput } from "../schema/auth.schema";
 import {
   findSessionById,
@@ -21,6 +21,8 @@ export async function createSessionHandler(
   const { email, password } = req.body;
   
   const user = await findUserByEmail(email);
+  const firstName  = user?.firstName ;
+  const lastName   = user?.lastName  ;
 
   if (!user) {
     return res.status(Code.Unauthorized).json({
@@ -56,13 +58,16 @@ export async function createSessionHandler(
       secure: true,    
       sameSite: "strict", 
       maxAge: 7 * 24 * 60 * 60 * 1000 
+
   })
   .status(Code.OK)
   .json({
       status: Status.SUCCESS,
       accessToken, 
+      firstName ,
+      lastName
   });
- 
+
 }
 
 

@@ -52,7 +52,10 @@ export class User {
   @prop({ required: true })
   password: string;
 
-  @prop({ required: true, default: () => nanoid() })
+  @prop({ required: true , unique: true})
+  phoneNumber: string;
+  
+  @prop({ default: () => nanoid(5) })
   verificationCode: string;
 
   @prop()
@@ -60,6 +63,12 @@ export class User {
 
   @prop({ default: false })
   verified: boolean;
+
+  @prop({ default: () => new Date(Date.now() + 15 * 60 * 1000) }) // 15 دقيقة صلاحية
+  verificationCodeExpires: Date;
+
+  @prop({ enum: ['user', 'admin'], default: 'user' })
+  role: string;
 
   async validatePassword(this: DocumentType<User>, candidatePassword: string) {
     try {
