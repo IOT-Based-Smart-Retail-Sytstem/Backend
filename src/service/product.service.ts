@@ -17,3 +17,16 @@ export async function getProductById(productId: string) {
     .findById(productId)
     .exec();
 }
+
+export async function getBestSellingProducts(id: string) {
+  const product1 = await ProductModel.find({ categoryId: id })
+    .sort({ sold: -1 })
+    .limit(10)
+    .exec();
+
+  const product2 = await ProductModel.find({ subCategoryId: id })
+    .sort({ sold: -1 })
+    .limit(10)
+    .exec();
+  return  product1 || product2;
+}
