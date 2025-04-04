@@ -10,6 +10,7 @@ import generateToken from "../utils/generateToken";
 import jwt from "jsonwebtoken";
 import * as argon2 from 'argon2';
 import UserModel from '../models/user.model';
+import { AdminEmails } from '../models/adminEmail.model';
 dotenv.config();
 
 export async function createUserHandler(
@@ -19,8 +20,8 @@ export async function createUserHandler(
     const body = req.body 
     try {
 
-      const adminEmails = ['admin1@example.com', 'admin2@example.com']; 
-      const role = adminEmails.includes(body.email) ? 'admin' : 'user';
+      const adminEmailExists = await AdminEmails.findOne({email : body.email})
+      const role = adminEmailExists ? 'admin' : 'user';
       const user = await createUser({ ...body , role });
 
       res.cookie('userId', user._id.toString(), {
