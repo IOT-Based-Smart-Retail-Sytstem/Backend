@@ -4,6 +4,7 @@ import contact from './contact.routes'
 import auth from './auth.routes' ;
 import product from './product.routes' ;
 import cart from './cart.routes';
+import category from './category.routes';
 
 const router  = express.Router()
 
@@ -16,5 +17,6 @@ router.use(contact);
 router.use(auth) ;
 router.use(product) ;
 router.use(cart);
+router.use(category);
 
 export default router ;
