@@ -19,21 +19,17 @@ export async function createUserHandler(
     const body = req.body 
     try {
 
-      const adminEmails = ['admin1@example.com', 'admin2@example.com']; // قائمة بريدات الأدمن
+      const adminEmails = ['admin1@example.com', 'admin2@example.com']; 
       const role = adminEmails.includes(body.email) ? 'admin' : 'user';
       const user = await createUser({ ...body , role });
 
       res.cookie('userId', user._id.toString(), {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        maxAge: 15 * 60 * 1000 // 15 دقيقة (تطابق صلاحية الكود)
+        maxAge: 15 * 60 * 1000 
     });
 
-    // const newCode = nanoid(6);
-    // await user.updateOne({
-    //     verificationCode: newCode,
-    //     verificationCodeExpires: new Date(Date.now() + 15 * 60 * 1000) // 15 دقيقة
-    // });
+    
         await sendEmail({
             to: user.email,
             from: "yasmeenayr@gmail.com",
@@ -119,7 +115,6 @@ export async function verifyUserHandler(
         message: "Verification code Expired"
     });
 }
-    // التحقق من الكود
     if (user.verified) {
       return res
             .status(Code.OK)
