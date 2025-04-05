@@ -1,5 +1,6 @@
 import ProductModel, {Product} from "../../models/user/product.model";
 import { Request } from "express";
+import { CustomError } from "../../utils/custom.error";
 
 export async function createProduct(input: Partial<Product>) {
   return ProductModel.create(input);
@@ -13,9 +14,9 @@ export async function getAllProducts(req: Request) {
 }
 
 export async function getProductById(productId: string) {
-  return ProductModel
-    .findById(productId)
-    .exec();
+  const product = await ProductModel.findById(productId).exec();
+  if (!product) throw new CustomError("Product not found", 404);
+  return product;
 }
 
 export async function getBestSellingProducts(id: string) {
