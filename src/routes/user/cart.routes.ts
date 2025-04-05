@@ -5,15 +5,15 @@ import {
   updateCartItemHandler,
   removeFromCartHandler,
   createCartHandler,
-} from "../controllers/cart.controller";
+} from "../../controllers/user/cart.controller";
 import {
   addToCartSchema,
   updateCartItemSchema,
   removeFromCartSchema,
   getCartSchema,
   createCartSchema,
-} from "../schema/cart.schema";
-import validateResource from '../middlware/validateResource';
+} from "../../schema/user/cart.schema";
+import validateResource from '../../middlware/validateResource';
 
 const router = express.Router();
 

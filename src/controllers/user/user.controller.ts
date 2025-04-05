@@ -1,16 +1,16 @@
 import dotenv from 'dotenv';
 import { Request, Response } from "express";
-import { CreateUserInput, ForgotPasswordInput, ResetPasswordInput, VerifyUserInput } from "../schema/user.schema";
-import { createUser, findUserByEmail, findUserById } from "../service/user.service";
-import sendEmail from "../utils/mailer";
-import log from "../utils/logger";
+import { CreateUserInput, ForgotPasswordInput, ResetPasswordInput, VerifyUserInput } from "../../schema/user/user.schema";
+import { createUser, findUserByEmail, findUserById } from "../../service/user/user.service";
+import sendEmail from "../../utils/mailer";
+import log from "../../utils/logger";
 import { nanoid } from "nanoid";
-import { Code, Status } from "../utils/httpStatus";
-import generateToken from "../utils/generateToken";
+import { Code, Status } from "../../utils/httpStatus";
+import generateToken from "../../utils/generateToken";
 import jwt from "jsonwebtoken";
 import * as argon2 from 'argon2';
-import UserModel from '../models/user.model';
-import { AdminEmails } from '../models/adminEmail.model';
+import UserModel from '../../models/user/user.model';
+import { AdminEmails } from '../../models/admin/adminEmail.model';
 dotenv.config();
 
 export async function createUserHandler(

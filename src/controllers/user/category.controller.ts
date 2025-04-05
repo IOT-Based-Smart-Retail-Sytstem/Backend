@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { createCategory, getMainCategories, getSubCategoriesByParentId } from "../service/category.service";
-import {getBestSellingProducts} from "../service/product.service";
+import { createCategory, getMainCategories, getSubCategoriesByParentId } from "../../service/user/category.service";
+import {getBestSellingProducts} from "../../service/user/product.service";
 
 export async function createCategoryHandler(req: Request, res: Response, next: NextFunction) {
     const body = req.body;

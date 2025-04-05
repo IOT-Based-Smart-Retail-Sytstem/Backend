@@ -1,4 +1,4 @@
-import ContactModel, {Contact} from "../models/contact.model";
+import ContactModel, {Contact} from "../../models/user/contact.model";
 import { Request } from "express";
 
 export async function createContact(input: Partial<Contact>) {

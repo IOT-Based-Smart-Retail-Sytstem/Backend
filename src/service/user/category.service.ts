@@ -1,4 +1,4 @@
-import CategoryModel, {Category} from "../models/category.model";
+import CategoryModel, {Category} from "../../models/user/category.model";
 
 export async function createCategory(input: Partial<Category>, parentId?: string) {
     if (parentId) {

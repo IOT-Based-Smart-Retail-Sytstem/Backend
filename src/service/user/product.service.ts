@@ -1,4 +1,4 @@
-import ProductModel, {Product} from "../models/product.model";
+import ProductModel, {Product} from "../../models/user/product.model";
 import { Request } from "express";
 
 export async function createProduct(input: Partial<Product>) {

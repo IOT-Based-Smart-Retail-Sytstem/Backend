@@ -1,14 +1,14 @@
 import { DocumentType } from "@typegoose/typegoose";
 import { Request, Response } from "express";
 import { get } from "lodash";
-import {User} from "../models/user.model";
+import {User} from "../models/user/user.model";
 import { CreateSessionInput } from "../schema/auth.schema";
 import {
   findSessionById,
   signAccessToken,
   signRefreshToken,
 } from "../service/auth.service";
-import { findUserByEmail, findUserById } from "../service/user.service";
+import { findUserByEmail, findUserById } from "../service/user/user.service";
 import { verifyJwt } from "../utils/jwt";
 import { Code, Status } from "../utils/httpStatus";
 

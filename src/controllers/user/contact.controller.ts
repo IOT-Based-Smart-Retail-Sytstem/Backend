@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { createContact, getContactById, getAllContacts } from '../service/contact.service';
-import log from '../utils/logger';
+import { createContact, getContactById, getAllContacts } from '../../service/user/contact.service';
+import log from '../../utils/logger';
 
 export async function createContactHandler(req: Request, res: Response, next: NextFunction) {
     const body = req.body;

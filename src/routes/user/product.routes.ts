@@ -1,7 +1,7 @@
 import express from 'express';
-import { createProductHandler, getAllProductsHandler, getProductHandler } from '../controllers/product.controller';
-import { createProductSchema } from '../schema/product.schema';
-import validateResource from '../middlware/validateResource';
+import { createProductHandler, getAllProductsHandler, getProductHandler } from '../../controllers/user/product.controller';
+import { createProductSchema } from '../../schema/user/product.schema';
+import validateResource from '../../middlware/validateResource';
 
 const router = express.Router();
 

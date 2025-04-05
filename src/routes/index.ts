@@ -1,10 +1,10 @@
 import express from "express";
-import user from './user.routes'
-import contact from './contact.routes'
+import user from './user/user.routes'
+import contact from './user/contact.routes'
 import auth from './auth.routes' ;
-import product from './product.routes' ;
-import cart from './cart.routes';
-import category from './category.routes';
+import product from './user/product.routes' ;
+import cart from './user/cart.routes';
+import category from './user/category.routes';
 
 const router  = express.Router()
 

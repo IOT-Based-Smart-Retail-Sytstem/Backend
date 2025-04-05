@@ -1,9 +1,9 @@
 import express from 'express' ;
-import validateResource from '../middlware/validateResource';
-import { createUserSchema, forgotPasswordSchema, resetPasswordSchema, verifyUserSchema } from '../schema/user.schema';
-import { createUserHandler, forgotPasswordHandler, getCurrentUserHandler, resendVerificationCode, resetPasswordHandler, verifyResetCode, verifyUserHandler } from '../controllers/user.controller';
-import requireUser from '../middlware/requireUser';
-import { requireRole } from "../middlware/requireRole";
+import validateResource from '../../middlware/validateResource';
+import { createUserSchema, forgotPasswordSchema, resetPasswordSchema, verifyUserSchema } from '../../schema/user/user.schema';
+import { createUserHandler, forgotPasswordHandler, getCurrentUserHandler, resendVerificationCode, resetPasswordHandler, verifyResetCode, verifyUserHandler } from '../../controllers/user/user.controller';
+import requireUser from '../../middlware/requireUser';
+import { requireRole } from "../../middlware/requireRole";
 
 const router  = express.Router()
 

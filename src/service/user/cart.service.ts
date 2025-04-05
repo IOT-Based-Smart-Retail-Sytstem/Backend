@@ -1,7 +1,7 @@
 import { Types } from "mongoose"; 
-import CartModel, { Cart, CartItem } from "../models/cart.model";
-import ProductModel from "../models/product.model";
-import  UserModel  from "../models/user.model";
+import CartModel, { Cart, CartItem } from "../../models/user/cart.model";
+import ProductModel from "../../models/user/product.model";
+import  UserModel  from "../../models/user/user.model";
 
 export async function createCart(userId: string) {
   const user = await UserModel.findById(userId);

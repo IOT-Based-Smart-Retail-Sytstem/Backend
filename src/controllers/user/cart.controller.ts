@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { AddToCartInput, UpdateCartItemInput, RemoveFromCartInput, GetCartInput, CreateCartInput } from "../schema/cart.schema";
-import { createCart, getCart, addToCart, updateCartItem, removeFromCart } from "../service/cart.service";
-import { Code, Status } from "../utils/httpStatus";
+import { AddToCartInput, UpdateCartItemInput, RemoveFromCartInput, GetCartInput, CreateCartInput } from "../../schema/user/cart.schema";
+import { createCart, getCart, addToCart, updateCartItem, removeFromCart } from "../../service/user/cart.service";
+import { Code, Status } from "../../utils/httpStatus";
 
 export const createCartHandler = async (req: Request<{}, {}, CreateCartInput>, res: Response) => {
   const { userId } = req.body;
