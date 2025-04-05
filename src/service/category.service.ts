@@ -1,8 +1,13 @@
 import CategoryModel, {Category} from "../models/category.model";
+import { CustomError } from "../utils/custom.error";
 
 export async function createCategory(input: Partial<Category>, parentId?: string) {
     if (parentId) {
         const parentCategory = await CategoryModel.findById(parentId);
+        if (!parentCategory) throw new CustomError("Parent category not found", 404);
+        if (parentCategory.parent) throw new CustomError("Parent category is not a main category", 400);
+
+
         return CategoryModel.create({
             ...input,
             parent: parentCategory,
@@ -12,30 +17,23 @@ export async function createCategory(input: Partial<Category>, parentId?: string
   return CategoryModel.create(input);
 }
 
+
 export async function getMainCategories() {
-  return CategoryModel.find({ parent: null }).exec();
+  return CategoryModel.find({ parent: null}, {parent: 0, __v: 0}).exec();
 }
+
 
 export async function getSubCategories() {
     return CategoryModel.find({ parent: { $ne: null } }).exec();
 }
 
-export async function getCategoryById(categoryId: string) {
-  return CategoryModel
-    .findById(categoryId)
-    .populate("parent")
-    .exec();
-}
-
-export async function getSubCategoryById(subCategoryId: string) {
-  return CategoryModel
-    .findById(subCategoryId)
-    .populate("parent")
-    .exec();
-}
 
 export async function getSubCategoriesByParentId(parentId: string) {
     const parentCategory = await CategoryModel.findById(parentId);
+    if (!parentCategory) throw new CustomError("Parent category not found", 404);
+    if (parentCategory.parent) throw new CustomError("Parent category is not a main category", 400);
+
+
   return CategoryModel
     .find({ parent: parentCategory })
     .exec();
