@@ -23,6 +23,7 @@ export async function createSessionHandler(
   const user = await findUserByEmail(email);
   const firstName  = user?.firstName ;
   const lastName   = user?.lastName  ;
+  const role       = user?.role ;
 
   if (!user) {
     return res.status(Code.Unauthorized).json({
@@ -64,8 +65,10 @@ export async function createSessionHandler(
   .json({
       status: Status.SUCCESS,
       accessToken, 
-      firstName ,
-      lastName
+      firstName,
+      lastName,
+      role
+      
   });
 
 }
