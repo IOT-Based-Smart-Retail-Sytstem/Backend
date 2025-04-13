@@ -25,7 +25,7 @@ export async function createUserHandler(
       const user = await createUser({ ...body , role });
 
       res.cookie('userId', user._id.toString(), {
-        httpOnly: true,
+        httpOnly: false,
         secure: process.env.NODE_ENV === 'production',
         maxAge: 15 * 60 * 1000 
     });
