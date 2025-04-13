@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { createCategory, getMainCategories, getSubCategoriesByParentId } from "../../service/user/category.service";
+import { createCategory, getMainCategories, getSubCategoriesByParentId, getSubCategories} from "../../service/user/category.service";
 import {getBestSellingProducts} from "../../service/user/product.service";
 
 export async function createCategoryHandler(req: Request, res: Response, next: NextFunction) {
@@ -14,6 +14,20 @@ export async function createCategoryHandler(req: Request, res: Response, next: N
             data: category
         })
     } catch (e: any) {
+        next(e);
+    }
+}
+
+export async function getSubCategoriesHandler(req: Request, res: Response, next: NextFunction) {
+    try {
+        const subCategories = await getSubCategories();
+        res.status(200).json({
+            success: true,
+            message: "Subcategories fetched successfully",
+            data: subCategories
+        })
+    }
+    catch (e: any) {
         next(e);
     }
 }

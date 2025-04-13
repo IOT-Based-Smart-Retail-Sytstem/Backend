@@ -3,12 +3,18 @@ import { getModelForClass, prop } from "@typegoose/typegoose";
 export class Product {
     @prop({ required: true })
     title: string
-
+    
     @prop({ required: true })
     price: number
 
     @prop({ required: true })
+    brand: string
+
+    @prop({ required: true })
     description: string
+
+    @prop({ required: true })
+    highlights: string
 
     @prop({ required: true })
     image_url: string

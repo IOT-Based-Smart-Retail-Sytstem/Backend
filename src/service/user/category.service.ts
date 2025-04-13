@@ -24,7 +24,7 @@ export async function getMainCategories() {
 
 
 export async function getSubCategories() {
-    return CategoryModel.find({ parent: { $ne: null } }).exec();
+    return CategoryModel.find({ parent: { $ne: null } }, {parent: 0, __v: 0}).exec();
 }
 
 
