@@ -1,16 +1,30 @@
 import { Request, Response, NextFunction } from "express";
-import { createCategory, getMainCategories, getSubCategoriesByParentId, getSubCategories} from "../../service/user/category.service";
+import { createMainCategory, createSubCategory, getMainCategories, getSubCategoriesByParentId, getSubCategories, updateCategory} from "../../service/user/category.service";
 import {getBestSellingProducts} from "../../service/user/product.service";
+import {CreateCategoryInput, UpdateCategoryInput, GetCategoryInput, GetSubCategoriesInput, GetMainCategoriesInput} from "../../schema/user/category.schema";
 
-export async function createCategoryHandler(req: Request, res: Response, next: NextFunction) {
-    const body = req.body;
-    const parentId = req.params.parentId;
+export async function createMainCategoryHandler(req: Request<{}, {}, CreateCategoryInput>, res: Response, next: NextFunction) {
     try {
-        console.log("parentId", parentId);
-        const category = await createCategory(body, parentId || undefined);
+        const body = req.body;
+        const category = await createMainCategory(body);
         res.status(201).json({
             success: true,
-            message: "Category created successfully",
+            message: "Main category created successfully",
+            data: category
+        })
+    } catch (e: any) {
+        next(e);
+    }
+}
+
+export async function createSubCategoryHandler(req: Request<{ parentId: string }, {}, CreateCategoryInput>, res: Response, next: NextFunction) {
+    try {
+        const body = req.body;
+        const parentId = req.params.parentId;
+        const category = await createSubCategory(body, parentId);
+        res.status(201).json({
+            success: true,
+            message: "Subcategory created successfully",
             data: category
         })
     } catch (e: any) {
@@ -60,6 +74,21 @@ export async function getMainCategoryHandler(req: Request, res: Response, next: 
                 bestFirstSubCategorySellers
             },
         });
+    } catch (e: any) {
+        next(e);
+    }
+}
+
+export async function updateCategoryHandler(req: Request<{ id: string }, {}, UpdateCategoryInput>, res: Response, next: NextFunction) {
+    const categoryId = req.params.id;
+    const body = req.body;
+    try {
+        const category = await updateCategory(categoryId, body);
+        res.status(200).json({
+            success: true,
+            message: "Category updated successfully",
+            data: category
+        })
     } catch (e: any) {
         next(e);
     }

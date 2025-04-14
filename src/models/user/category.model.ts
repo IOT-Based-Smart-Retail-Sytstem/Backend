@@ -8,6 +8,9 @@ export class Category {
     image_url: string;
 
     @prop({ required: false, default: null })
+    background_image: string;
+
+    @prop({ required: false, default: null })
     parent: Ref<Category> | null;
 
     @prop({ required: true, default: Date.now })
