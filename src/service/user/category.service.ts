@@ -6,7 +6,7 @@ import { CustomError } from "../../utils/custom.error";
  * @param input - Category data to create
  * @throws CustomError if category creation fails
  */
-export async function createMainCategory(input: Partial<Category>): Promise<Category> {
+export async function createMainCategory(input: Partial<Category>) {
     try {
         return CategoryModel.create(input);
     } catch (error) {
@@ -20,7 +20,7 @@ export async function createMainCategory(input: Partial<Category>): Promise<Cate
  * @param parentId - ID of the parent category
  * @throws CustomError if parent category is not found or is not a main category
  */
-export async function createSubCategory(input: Partial<Category>, parentId: string): Promise<Category> {
+export async function createSubCategory(input: Partial<Category>, parentId: string) {
     try {
         const parentCategory = await CategoryModel.findById(parentId);
         if (!parentCategory) throw new CustomError("Parent category not found", 404);
@@ -40,7 +40,7 @@ export async function createSubCategory(input: Partial<Category>, parentId: stri
  * @returns Promise resolving to an array of main categories
  * @throws CustomError if fetching categories fails
  */
-export async function getMainCategories(): Promise<Category[]> {
+export async function getMainCategories() {
     try {
         return CategoryModel.find({ parent: null }, { parent: 0, __v: 0 }).exec();
     } catch (error) {
@@ -53,7 +53,7 @@ export async function getMainCategories(): Promise<Category[]> {
  * @returns Promise resolving to an array of subcategories
  * @throws CustomError if fetching subcategories fails
  */
-export async function getSubCategories(): Promise<Category[]> {
+export async function getSubCategories() {
     try {
         return CategoryModel.find({ parent: { $ne: null } }, { parent: 0, __v: 0 }).exec();
     } catch (error) {
@@ -67,7 +67,7 @@ export async function getSubCategories(): Promise<Category[]> {
  * @returns Promise resolving to an array of subcategories
  * @throws CustomError if parent category is not found or is not a main category
  */
-export async function getSubCategoriesByParentId(parentId: string): Promise<Category[]> {
+export async function getSubCategoriesByParentId(parentId: string) {
     try {
         const parentCategory = await CategoryModel.findById(parentId);
         if (!parentCategory) throw new CustomError("Parent category not found", 404);
@@ -86,7 +86,7 @@ export async function getSubCategoriesByParentId(parentId: string): Promise<Cate
  * @returns Promise resolving to the updated category
  * @throws CustomError if category is not found or update fails
  */
-export async function updateCategory(id: string, input: Partial<Category>): Promise<Category> {
+export async function updateCategory(id: string, input: Partial<Category>) {
     try {
         const category = await CategoryModel.findById(id);
         if (!category) throw new CustomError("Category not found", 404);
