@@ -58,6 +58,7 @@ export default async function getSubCategories() {
         const subcategories = await CategoryModel.find({ parent: { $ne: null } }, {__v: 0}).exec();
         return subcategories.map((subcategory) => ({
             name: subcategory.name,
+            id: subcategory._id,
             parent: subcategory.parent?._id,
         }));
     } catch (error) {
