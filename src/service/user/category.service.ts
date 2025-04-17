@@ -44,7 +44,7 @@ export async function getMainCategories() {
     try {
         return CategoryModel.find({ parent: null }, { parent: 0, __v: 0 }).exec();
     } catch (error) {
-        throw new CustomError("Failed to fetch main categories", 500);
+        throw error;
     }
 }
 
@@ -55,14 +55,13 @@ export async function getMainCategories() {
  */
 export default async function getSubCategories() {
     try {
-        const subcategories = await CategoryModel.find({ parent: { $ne: null } }, {__v: 0}).exec();
+        const subcategories = await CategoryModel.find({ parent: { $ne: null } }, { parent: 0, __v: 0 }).exec();
         return subcategories.map((subcategory) => ({
-            name: subcategory.name,
-            id: subcategory._id,
-            parent: subcategory.parent?._id,
+            ...subcategory.toObject(),
+            parent: subcategory.parent ? subcategory.parent.toString() : null,
         }));
     } catch (error) {
-        throw new CustomError("Failed to fetch subcategories", 500);
+        throw error;
     }
 }
 
@@ -80,7 +79,7 @@ export async function getSubCategoriesByParentId(parentId: string) {
 
         return CategoryModel.find({ parent: parentCategory }).exec();
     } catch (error) {
-        throw new CustomError("Failed to fetch subcategories", 500);
+        throw error;
     }
 }
 
@@ -100,6 +99,6 @@ export async function updateCategory(id: string, input: Partial<Category>) {
         await category.save();
         return category;
     } catch (error) {
-        throw new CustomError("Failed to update category", 500);
+        throw error;
     }
 }

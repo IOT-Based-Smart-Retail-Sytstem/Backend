@@ -27,7 +27,6 @@ export class Product {
 
     @prop({ required: true})
     item_weight: string
-
     @prop({required: true})
     subCategoryId: string
 
