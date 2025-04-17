@@ -53,9 +53,13 @@ export async function getMainCategories() {
  * @returns Promise resolving to an array of subcategories
  * @throws CustomError if fetching subcategories fails
  */
-export async function getSubCategories() {
+export default async function getSubCategories() {
     try {
-        return CategoryModel.find({ parent: { $ne: null } }, { parent: 0, __v: 0 }).exec();
+        const subcategories = await CategoryModel.find({ parent: { $ne: null } }, {__v: 0}).exec();
+        return subcategories.map((subcategory) => ({
+            ...subcategory.toObject(),
+            parent: subcategory.parent?._id,
+        }));
     } catch (error) {
         throw new CustomError("Failed to fetch subcategories", 500);
     }

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { createMainCategory, createSubCategory, getMainCategories, getSubCategoriesByParentId, getSubCategories, updateCategory} from "../../service/user/category.service";
+import getSubCategories, { createMainCategory, createSubCategory, getMainCategories, getSubCategoriesByParentId, updateCategory} from "../../service/user/category.service";
 import {getBestSellingProducts} from "../../service/user/product.service";
 import {CreateCategoryInput, UpdateCategoryInput, GetCategoryInput, GetSubCategoriesInput, GetMainCategoriesInput} from "../../schema/user/category.schema";
 

@@ -33,24 +33,8 @@ export const getCategorySchema = object({
   }),
 });
 
-export const getSubCategoriesSchema = object({
-  params: object({
-    parentId: string({
-      required_error: "Parent ID is required",
-    }),
-  }),
-});
 
-export const getMainCategoriesSchema = object({
-  params: object({
-    parentId: string({
-      required_error: "Parent ID is required",
-    }),
-  }),
-});
 
 export type CreateCategoryInput = TypeOf<typeof createCategorySchema>["body"];
 export type UpdateCategoryInput = TypeOf<typeof updateCategorySchema>["body"];
 export type GetCategoryInput = TypeOf<typeof getCategorySchema>["params"];
-export type GetSubCategoriesInput = TypeOf<typeof getSubCategoriesSchema>["params"];
-export type GetMainCategoriesInput = TypeOf<typeof getMainCategoriesSchema>["params"];
