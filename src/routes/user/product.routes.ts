@@ -1,5 +1,5 @@
 import express from 'express';
-import { createProductHandler, getAllProductsHandler, getProductHandler } from '../../controllers/user/product.controller';
+import { createProductHandler, getAllProductsHandler, getProductHandler, getProductsByCategoryHandler, getProductsBySubCategoryHandler, searchForProductHandler } from '../../controllers/user/product.controller';
 import { createProductSchema } from '../../schema/user/product.schema';
 import validateResource from '../../middlware/validateResource';
 
@@ -19,6 +19,21 @@ router.get(
 router.get(
     "/api/product/:id",
     getProductHandler
+);
+
+router.get(
+    "/api/product/category/:id",
+    getProductsByCategoryHandler
+);
+
+router.get(
+    "/api/product/subcategory/:id",
+    getProductsBySubCategoryHandler
+);
+
+router.get(
+    "/api/product/search/:search",
+    searchForProductHandler
 );
 
 export default router;

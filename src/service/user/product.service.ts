@@ -7,11 +7,11 @@ import { Types } from "mongoose";
 
 export async function createProduct(input: Partial<Product>) {
   try {
-    const category = await CategoryModel.findOne({"name": {$regex: input.categoryId, $options: "i"}}).exec();
+    const category = await CategoryModel.findOne({name: {$regex: input.categoryId, $options: "i"}}).exec();
     if (!category) throw new CustomError("Category not found", 404);
     input.categoryId = category._id.toString();
 
-    const subCategory = await CategoryModel.findOne({"name": {$regex: input.subCategoryId, $options: "i"}}).exec();
+    const subCategory = await CategoryModel.findOne({name: {$regex: input.subCategoryId, $options: "i"}}).exec();
     if (!subCategory) throw new CustomError("Sub category not found", 404);
     input.subCategoryId = subCategory._id.toString();
     return ProductModel.create(input);
@@ -54,6 +54,33 @@ export async function getBestSellingProducts(id: string) {
       .limit(10)
       .exec();
     return product1 || product2;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getProductsByCategory(categoryId: string) {
+  try {
+    const products = await ProductModel.find({ categoryId: categoryId }).exec();
+    return products;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getProductsBySubCategory(subCategoryId: string) {
+  try {
+    const products = await ProductModel.find({ subCategoryId: subCategoryId }).exec();
+    return products;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function searchForProduct(search: string) {
+  try {
+    const products = await ProductModel.find({ title: { $regex: search, $options: "i" } }).exec();
+    return products;
   } catch (error) {
     throw error;
   }
