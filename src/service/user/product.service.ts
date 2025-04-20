@@ -7,17 +7,13 @@ import { Types } from "mongoose";
 
 export async function createProduct(input: Partial<Product>) {
   try {
-    if (!input.categoryId || !Types.ObjectId.isValid(input.categoryId)) {
-      throw new CustomError("Invalid category ID format", 400);
-    }
-    if (!input.subCategoryId || !Types.ObjectId.isValid(input.subCategoryId)) {
-      throw new CustomError("Invalid subcategory ID format", 400);
-    }
-
-    const category = await CategoryModel.findById(input.categoryId).exec();
+    const category = await CategoryModel.findOne({"name": {$regex: input.categoryId, $options: "i"}}).exec();
     if (!category) throw new CustomError("Category not found", 404);
-    const subCategory = await CategoryModel.findById(input.subCategoryId).exec();
+    input.categoryId = category._id.toString();
+
+    const subCategory = await CategoryModel.findOne({"name": {$regex: input.subCategoryId, $options: "i"}}).exec();
     if (!subCategory) throw new CustomError("Sub category not found", 404);
+    input.subCategoryId = subCategory._id.toString();
     return ProductModel.create(input);
   } catch (error) {
     console.log(error);
