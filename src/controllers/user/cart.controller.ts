@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { AddToCartInput, UpdateCartItemInput, RemoveFromCartInput, GetCartInput, CreateCartInput } from "../../schema/user/cart.schema";
-import { createCart, getCart, addToCart, updateCartItem, removeFromCart } from "../../service/user/cart.service";
+import { AddToCartInput, RemoveFromCartInput, GetCartInput, CreateCartInput } from "../../schema/user/cart.schema";
+import { createCart, getCart, addToCart, removeFromCart } from "../../service/user/cart.service";
 import { Code, Status } from "../../utils/httpStatus";
 
 export const createCartHandler = async (req: Request<{}, {}, CreateCartInput>, res: Response) => {
@@ -52,23 +52,6 @@ export const addToCartHandler = async (req: Request<{}, {}, AddToCartInput>, res
   }
 };
 
-export const updateCartItemHandler = async (req: Request<{ productId: string }, {}, UpdateCartItemInput>, res: Response) => {
-  const { productId } = req.params;
-  const { quantity } = req.body;
-  const userId = res.locals.user._id;
-  try {
-    const cart = await updateCartItem(userId, productId, quantity);
-    res.status(Code.OK).json({
-      status: Status.SUCCESS,
-      data: cart,
-    });
-  } catch (e: any) {
-    res.status(Code.BadRequest).json({
-      status: Status.FAIL,
-      message: e.message,
-    });
-  }
-};
 
 export const removeFromCartHandler = async (req: Request<RemoveFromCartInput>, res: Response) => {
   const { productId } = req.params;
