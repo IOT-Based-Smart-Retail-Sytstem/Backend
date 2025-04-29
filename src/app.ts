@@ -16,7 +16,7 @@ const app = express();
 const server = http.createServer(app);
 
 // Initialize Socket.IO service
-new SocketService(server);
+// new SocketService(server);
 
 // Configure cors
 app.use(cors());
