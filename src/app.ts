@@ -9,27 +9,27 @@ import {errorHandler} from './middlware/error.handler';
 import deserializeUser from './middlware/deserializeUser';
 import cookieParser from "cookie-parser";
 import cors from 'cors'
+import http from 'http';
+import { SocketService } from './service/socket/socket.service';
 
+const app = express();
+const server = http.createServer(app);
 
-const app  = express()
+// Initialize Socket.IO service
+new SocketService(server);
 
-// configure cors
+// Configure cors
 app.use(cors());
-
 app.use(express.json());
-
 app.use(deserializeUser);
-
 app.use(cookieParser());
-
 app.use(router);
-
 app.use(errorHandler);
 
-const port  = config.get("port");
+const port = config.get("port");
 
 connectToDb().then(() => {
-    app.listen(port, () => {
+    server.listen(port, () => {
         log.info(`Server is running at http://localhost:${port}`)
     })
 }).catch((e) => {

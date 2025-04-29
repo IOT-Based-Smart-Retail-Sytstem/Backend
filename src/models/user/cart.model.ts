@@ -16,9 +16,15 @@ export class Cart {
 
   @prop({ type: () => [CartItem], default: [] })
   items: CartItem[];
-
+  
   @prop({ required: true, default: 0 })
+  qrCode: number;
+
+  @prop({ required: false, default: 0 })
   totalPrice: number;
+
+  @prop({ required: false, default: false })
+  isActive: boolean;
 }
 
 const CartModel = getModelForClass(Cart);

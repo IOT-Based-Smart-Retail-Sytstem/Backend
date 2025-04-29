@@ -42,6 +42,16 @@ export async function getProductById(productId: string) {
   }
 }
 
+export async function getProductByBarcode(barcode: string) {
+  try {
+    const product = await ProductModel.findOne({ barcode: barcode }).exec();
+    if (!product) throw new CustomError("Product not found", 404);
+    return product;
+  } catch (error) {
+    throw error;
+  }
+}
+
 export async function getBestSellingProducts(id: string) {
   try {
     const product1 = await ProductModel.find({ categoryId: id })
