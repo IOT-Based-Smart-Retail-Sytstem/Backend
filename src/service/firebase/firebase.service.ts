@@ -2,9 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, onValue, set, DataSnapshot, get } from 'firebase/database';
 import { Server } from 'socket.io';
 import * as dotenv from 'dotenv';
-import CartModel, { Cart, CartItem } from '../../models/user/cart.model';
-import ProductModel from '../../models/user/product.model';
-import { Types } from 'mongoose';
+import CartModel from '../../models/user/cart.model';
 import { connectUserToCart, addToCart } from '../user/cart.service';
 import { getProductByBarcode } from '../user/product.service';
 

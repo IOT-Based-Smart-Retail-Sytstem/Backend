@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import getSubCategories, { createMainCategory, createSubCategory, getMainCategories, getSubCategoriesByParentId, updateCategory} from "../../service/user/category.service";
 import {getBestSellingProducts} from "../../service/user/product.service";
-import {CreateCategoryInput, UpdateCategoryInput, GetCategoryInput} from "../../schema/user/category.schema";
+import {CreateCategoryInput, UpdateCategoryInput} from "../../schema/user/category.schema";
 
 export async function createMainCategoryHandler(req: Request<{}, {}, CreateCategoryInput>, res: Response, next: NextFunction) {
     try {
