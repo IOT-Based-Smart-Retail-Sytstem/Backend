@@ -4,9 +4,9 @@ import { createCart, getCart, addToCart, removeFromCart } from "../../service/us
 import { Code, Status } from "../../utils/httpStatus";
 
 export const createCartHandler = async (req: Request<{}, {}, CreateCartInput>, res: Response) => {
-  const { userId } = req.body;
+  const { qrCode } = req.body;
   try {
-    const cart = await createCart(userId);
+    const cart = await createCart(qrCode);
     res.status(Code.Created).json({
       status: Status.SUCCESS,
       data: cart,

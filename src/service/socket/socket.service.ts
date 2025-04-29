@@ -21,19 +21,20 @@ export class SocketService {
             console.log('Client connected:', socket.id);
 
             // Handle cart QR code scanning
-            socket.on('scan-cart-qr', async (data: { cartId: string, userId: string }) => {
+            socket.on('scan-cart-qr', async (data: { cartQrCode: string, userId: string }) => {
                 console.log("scanning");
+                console.log("data", data)
                 try {
-                    const { cartId, userId } = data;
+                    const { cartQrCode, userId } = data;
                     socket.join(userId); // Join user's room for targeted updates
 
                     // Start cart scanning
-                    await this.firebaseService.startCartScanning(cartId, userId);
+                    await this.firebaseService.startCartScanning(cartQrCode, userId);
 
                     // Notify mobile app of successful connection
                     socket.emit('cart-connected', {
                         success: true,
-                        cartId,
+                        cartQrCode,
                         message: 'Successfully connected to cart'
                     });
                 } catch (error) {
@@ -46,10 +47,10 @@ export class SocketService {
             });
 
             // Handle stop cart scanning
-            socket.on('stop-cart-scanning', async (data: { cartId: string }) => {
+            socket.on('stop-cart-scanning', async (data: { cartQrCode: string }) => {
                 try {
-                    const { cartId } = data;
-                    await this.firebaseService.stopCartScanning(cartId);
+                    const { cartQrCode } = data;
+                    await this.firebaseService.stopCartScanning(cartQrCode);
                     socket.emit('scanning-stopped', {
                         success: true,
                         message: 'Cart scanning stopped successfully'

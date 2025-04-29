@@ -37,8 +37,8 @@ export const updateCartItemSchema = object({
 
 export const createCartSchema = object({
     body: object({
-      userId: string({
-        required_error: "User ID is required",
+      qrCode: string({
+        required_error: "qrCode is required",
       }),
     }),
   });

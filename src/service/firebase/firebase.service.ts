@@ -59,10 +59,11 @@ export class FirebaseService {
         }
     }
 
-    public async startCartScanning(qrCode: string, userId: string) {
+    public async startCartScanning(cartQrCode: string, userId: string) {
         try {
             // Update cart with userId
-            const cart = await connectUserToCart(userId, qrCode);
+            const cart = await connectUserToCart(userId, cartQrCode);
+            console.log("cart", cart)
 
             // Set scanning flag in Firebase
             await this.updateNode(`start_scanning`, true);
@@ -83,7 +84,7 @@ export class FirebaseService {
                         const updatedCart = await addToCart(userId, product._id.toString(), scannedProduct.count || 1);
                         this.io.to(userId).emit('products-update', {
                             success: true,
-                            cartId: cart._id,
+                            cartQrCode: cart._id,
                             product: {
                                 ...product.toObject(),
                                 quantity: scannedProduct.count || 1

@@ -16,16 +16,16 @@ import validateResource from '../../middlware/validateResource';
 const router = express.Router();
 
 // إنشاء عربة تسوق جديدة
-router.post("/", validateResource(createCartSchema), createCartHandler);
+router.post("/api/cart", createCartHandler);
 
-// إضافة منتج إلى العربة
-router.post("/add", validateResource(addToCartSchema), addToCartHandler);
+// // إضافة منتج إلى العربة
+// router.post("/api/cart/add", validateResource(addToCartSchema), addToCartHandler);
 
-// الحصول على محتويات العربة
-router.get("/:userId", validateResource(getCartSchema), getCartHandler);
+// // الحصول على محتويات العربة
+// router.get("/api/cart/:userId", validateResource(getCartSchema), getCartHandler);
 
 
-// حذف منتج من العربة
-router.delete("/:productId", validateResource(removeFromCartSchema), removeFromCartHandler);
+// // حذف منتج من العربة
+// router.delete("/:productId", validateResource(removeFromCartSchema), removeFromCartHandler);
 
 export default router;

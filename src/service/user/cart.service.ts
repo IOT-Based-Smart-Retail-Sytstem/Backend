@@ -1,20 +1,24 @@
-import { Types, Document } from "mongoose";
+import { Types } from "mongoose";
 import CartModel, { Cart } from "../../models/user/cart.model";
 import UserModel from "../../models/user/user.model";
 import { getProductById } from "./product.service";
 import { CustomError } from "../../utils/custom.error";
 import { Code } from "../../utils/httpStatus";
 
-type CartWithId = Cart & Document;
 
 /**
  * Creates a new cart with the specified QR code
  * @param qrCode - The QR code to associate with the cart
+ * @param userId - The ID of the user
  * @returns The created cart
  */
-export async function createCart(qrCode: string) {
+export async function createCart(qrCode: string, userId: string) {
   try {
-    const cart = await CartModel.create({qrCode, items: []});
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      throw new CustomError("User not found", Code.NotFound);
+    }
+    const cart = await CartModel.create({ qrCode, user });
     return cart;
   } catch (error) {
     throw new CustomError('Failed to create cart', Code.InternalServerError);
@@ -51,31 +55,18 @@ export async function getCart(userId: string) {
  */
 export async function connectUserToCart(userId: string, qrCode: string) {
   try {
-    const session = await CartModel.startSession();
-    let cart: CartWithId;
-    await session.withTransaction(async () => {
-      const [cartDoc, user] = await Promise.all([
-        CartModel.findOne({ qrCode }).session(session),
-        UserModel.findById(userId).session(session)
-      ]);
-
-      if (!cartDoc) {
-        throw new CustomError("Cart not found", Code.NotFound);
-      }
-      else if(cartDoc.isActive){
-        throw new CustomError("cart is not available right now", Code.Conflict);
-      }
-      if (!user) {
-        throw new CustomError("User not found", Code.NotFound);
-      }
-      cartDoc.user = user;
-      cartDoc.isActive = true;
-      cart = await cartDoc.save({ session });
-    });
-
-    return cart!;
+    const cart = await CartModel.findOne({ qrCode });
+    if (!cart) {
+      throw new CustomError("Cart not found", Code.NotFound);
+    }
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      throw new CustomError("User not found", Code.NotFound);
+    }
+    cart.user = user;
+    await cart.save();
+    return cart;
   } catch (error) {
-    if (error instanceof CustomError) throw error;
     throw new CustomError('Failed to connect user to cart', Code.InternalServerError);
   }
 }

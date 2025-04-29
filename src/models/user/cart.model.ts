@@ -11,15 +11,15 @@ export class CartItem {
 }
 
 export class Cart {
-  @prop({ ref: () => User, required: true, unique: true })
+  @prop({ required: true, default: 0, unique: true })
+  qrCode: string;
+  
+  @prop({ ref: () => User, required: true })
   user: Ref<User>;
 
   @prop({ type: () => [CartItem], default: [] })
   items: CartItem[];
   
-  @prop({ required: true, default: 0 })
-  qrCode: number;
-
   @prop({ required: false, default: 0 })
   totalPrice: number;
 
