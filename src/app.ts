@@ -16,7 +16,13 @@ const app = express();
 const server = http.createServer(app);
 
 // Initialize Socket.IO service
-// new SocketService(server);
+try {
+    let socketService = new SocketService(server);
+    log.info('SocketService started successfully');
+} catch (error) {
+    log.error(`Failed to initialize SocketService: ${error instanceof Error ? error.message : String(error)}`);
+    process.exit(1);
+}
 
 // Configure cors
 app.use(cors());
