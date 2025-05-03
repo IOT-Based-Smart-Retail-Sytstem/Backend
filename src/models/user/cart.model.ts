@@ -15,7 +15,7 @@ export class Cart {
   qrCode: string;
   
   @prop({ ref: () => User, required: false })
-  user: Ref<User>;
+  user: Ref<User> | null;
 
   @prop({ type: () => [CartItem], default: [] })
   items: CartItem[];

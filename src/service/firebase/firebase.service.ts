@@ -3,7 +3,7 @@ import { getDatabase, ref, onValue, set, DataSnapshot, get } from 'firebase/data
 import { Server } from 'socket.io';
 import * as dotenv from 'dotenv';
 import CartModel from '../../models/user/cart.model';
-import { connectUserToCart, addToCart } from '../user/cart.service';
+import { connectUserToCart, updateCart } from '../user/cart.service';
 import { getProductByBarcode } from '../user/product.service';
 
 dotenv.config();
@@ -67,21 +67,18 @@ export class FirebaseService {
             onValue(productsRef, async (snapshot: DataSnapshot) => {
                 const products = snapshot.val();
                 if (!products) return;
-                
-                const productKey = Object.keys(products)[0];
-                const scannedProduct = products[productKey];
-                if (scannedProduct && scannedProduct.barcode) {
+                if (products && products.barcode) {
                     try {
                         // Find product in database by barcode
-                        console.log(scannedProduct)
-                        const product = await getProductByBarcode(scannedProduct.barcode);
-                        const updatedCart = await addToCart(userId, product._id.toString(), scannedProduct.count || 1);
+                        console.log(products)
+                        const product = await getProductByBarcode(products.barcode);
+                        const updatedCart = await updateCart(userId, product._id.toString(), products.count || 1);
                         this.io.to(userId).emit('products-update', {
                             success: true,
                             cartQrCode: cart._id,
                             product: {
                                 ...product.toObject(),
-                                quantity: scannedProduct.count || 1
+                                quantity: products.count || 1
                             },
                             cartProduts:{
                                 updatedCart
