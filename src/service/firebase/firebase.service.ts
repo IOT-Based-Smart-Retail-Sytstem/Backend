@@ -44,7 +44,7 @@ export class FirebaseService {
             const rootRef = ref(database, 'products');
             const snapshot = await get(rootRef);
             const products = snapshot.val();
-            
+            console.log(products)
             // Get the first product key (since it's a nested object)
             const productKey = Object.keys(products)[0];
             const productData = products[productKey];
@@ -117,6 +117,9 @@ export class FirebaseService {
             const cart = await CartModel.findById(cartId);
             if (cart) {
                 cart.isActive = false;
+                cart.items = [];
+                cart.totalPrice = 0;
+                cart.user = null;
                 await cart.save();
             }
 

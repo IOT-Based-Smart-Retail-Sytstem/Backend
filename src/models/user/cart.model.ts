@@ -14,7 +14,7 @@ export class Cart {
   @prop({ required: true, default: 0, unique: true })
   qrCode: string;
   
-  @prop({ ref: () => User, required: true })
+  @prop({ ref: () => User, required: false })
   user: Ref<User>;
 
   @prop({ type: () => [CartItem], default: [] })
