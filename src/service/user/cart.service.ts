@@ -75,14 +75,13 @@ export async function connectUserToCart(userId: string, cartQrCode: string) {
     if (!user) {
       throw new CustomError('User not found', Code.NotFound);
     }
-    if(cart.isActive){
+    if(cart.isActive && cart.user?._id.toString() !== userId){
       throw new CustomError('Cart is already active', Code.BadRequest);
     }
     cart.user = user;
     cart.isActive = true;
-    console.log("cart from service", cart)
     await cart.save();
-    return cart!;
+    return cart;
   } catch (error) {
     throw error;
   }
@@ -97,24 +96,29 @@ export async function connectUserToCart(userId: string, cartQrCode: string) {
  */
 export async function updateCart(userId: string, productId: string, quantity: number){
   try {
-      const product = await getProductById(productId);
-      const cart = await getUserCart(userId);
-
+    const product = await getProductById(productId);
+    const cart = await getUserCart(userId);
+    // console.log("cart before updateCart", cart)
       const itemIndex = cart.items.findIndex(
-        (item) => item.product.toString() === productId
+        (item) => item.product._id.toString() === productId
       );
 
       if (itemIndex > -1) {
+        // Update existing item quantity
         cart.items[itemIndex].quantity += quantity;
       } else {
+        // Add new item only if it doesn't exist
         cart.items.push({
           product: new Types.ObjectId(productId),
           quantity
         });
       }
+
+      // Recalculate total price based on all items
       cart.totalPrice += product.price * quantity;
+      // console.log("cart in updateCart", cart)
       await cart.save();
-      return cart!;
+      return cart;
   } catch (error) {
     if (error instanceof CustomError) throw error;
     throw new CustomError('Failed to add product to cart', Code.InternalServerError);

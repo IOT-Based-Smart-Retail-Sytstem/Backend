@@ -3,7 +3,7 @@ import { getDatabase, ref, onValue, set, DataSnapshot, get } from 'firebase/data
 import { Server } from 'socket.io';
 import * as dotenv from 'dotenv';
 import CartModel from '../../models/user/cart.model';
-import { connectUserToCart, updateCart } from '../user/cart.service';
+import { connectUserToCart, getUserCart, updateCart } from '../user/cart.service';
 import { getProductByBarcode } from '../user/product.service';
 
 dotenv.config();
@@ -72,7 +72,10 @@ export class FirebaseService {
                         // Find product in database by barcode
                         console.log(products)
                         const product = await getProductByBarcode(products.barcode);
+                        const cart = await getUserCart(userId);
+                        console.log("cart in startCartScanning", cart)
                         const updatedCart = await updateCart(userId, product._id.toString(), products.count || 1);
+                        console.log("updatedCart in startCartScanning", updatedCart)
                         this.io.to(userId).emit('products-update', {
                             success: true,
                             cartQrCode: cart._id,
