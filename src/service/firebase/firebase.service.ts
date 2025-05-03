@@ -44,15 +44,9 @@ export class FirebaseService {
             const rootRef = ref(database, 'products');
             const snapshot = await get(rootRef);
             const products = snapshot.val();
-            console.log(products)
-            // Get the first product key (since it's a nested object)
-            const productKey = Object.keys(products)[0];
-            const productData = products[productKey];
-            
             console.log('\n=== Firebase Product Data ===');
-            console.log('Product Key:', productKey);
-            console.log('Barcode:', productData.barcode);
-            console.log('Count:', productData.count);
+            console.log('Barcode:', products.barcode);
+            console.log('Count:', products.count);
             console.log('==============================\n');
         } catch (error) {
             console.error('Error printing Firebase nodes:', error);

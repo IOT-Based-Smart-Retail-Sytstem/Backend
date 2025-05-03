@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import CartModel, { Cart } from "../../models/user/cart.model";
+import CartModel from "../../models/user/cart.model";
 import UserModel from "../../models/user/user.model";
 import { getProductById } from "./product.service";
 import { CustomError } from "../../utils/custom.error";
@@ -26,7 +26,7 @@ export async function createCart(qrCode: string) {
  * @param userId - The ID of the user
  * @returns The user's cart
  */
-export async function getCart(userId: string) {
+export async function getUserCart(userId: string) {
   try {
     const cart = await CartModel.findOne({ user: userId })
       .populate("items.product")
@@ -44,6 +44,25 @@ export async function getCart(userId: string) {
 }
 
 /**
+ * Retrieves a cart by its QR code
+ * @param qrCode - The QR code of the cart
+ * @returns The cart
+ */
+export async function getCartByQrCode(qrCode: string) {
+  try {
+    const cart = await CartModel.findOne({ qrCode })
+      .populate("items.product")
+      .exec();
+
+    if (!cart) {
+      throw new CustomError('Cart not found', Code.NotFound);
+    }
+    return cart;
+  } catch (error) {
+    throw error;
+  }
+}
+/**
  * Connects a user to a cart using a QR code
  * @param userId - The ID of the user
  * @param qrCode - The QR code of the cart
@@ -51,18 +70,16 @@ export async function getCart(userId: string) {
  */
 export async function connectUserToCart(userId: string, cartQrCode: string) {
   try {
-    console.log("cartQrCode", cartQrCode)
-    console.log("userId", userId)
-    const cart = await CartModel.findOne({qrCode: cartQrCode});
-    console.log("cart", cart)
-    if (!cart) {
-      throw new CustomError('Cart not found', Code.NotFound);
-    }
+    const cart = await getCartByQrCode(cartQrCode);
     const user = await UserModel.findById(userId);
     if (!user) {
       throw new CustomError('User not found', Code.NotFound);
     }
+    if(cart.isActive){
+      throw new CustomError('Cart is already active', Code.BadRequest);
+    }
     cart.user = user;
+    cart.isActive = true;
     console.log("cart from service", cart)
     await cart.save();
     return cart!;
@@ -78,10 +95,10 @@ export async function connectUserToCart(userId: string, cartQrCode: string) {
  * @param quantity - The quantity of the product to add
  * @returns The updated cart
  */
-export async function addToCart(userId: string, productId: string, quantity: number){
+export async function updateCart(userId: string, productId: string, quantity: number){
   try {
       const product = await getProductById(productId);
-      const cart = await getCart(userId);
+      const cart = await getUserCart(userId);
 
       const itemIndex = cart.items.findIndex(
         (item) => item.product.toString() === productId
@@ -101,39 +118,5 @@ export async function addToCart(userId: string, productId: string, quantity: num
   } catch (error) {
     if (error instanceof CustomError) throw error;
     throw new CustomError('Failed to add product to cart', Code.InternalServerError);
-  }
-}
-
-/**
- * Removes a product from the user's cart
- * @param userId - The ID of the user
- * @param productId - The ID of the product to remove
- * @returns The updated cart
- */
-export async function removeFromCart(userId: string, productId: string) {
-  try {
-    const product = await getProductById(productId);
-    const cart = await getCart(userId);
-
-      const itemIndex = cart.items.findIndex(
-        (item) => item.product.toString() === productId
-      );
-
-      if (itemIndex === -1) {
-        throw new CustomError("Item not found in cart", Code.NotFound);
-      }
-
-      if (cart.items[itemIndex].quantity > 1) {
-        cart.items[itemIndex].quantity--;
-      } else {
-        cart.items.splice(itemIndex, 1);
-      }
-
-      cart.totalPrice -= product.price;
-      await cart.save();
-    return cart!;
-  } catch (error) {
-    if (error instanceof CustomError) throw error;
-    throw new CustomError('Failed to remove product from cart', Code.InternalServerError);
   }
 }

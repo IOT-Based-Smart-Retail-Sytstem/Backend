@@ -1,22 +1,12 @@
 import express from "express";
-import {
-  addToCartHandler,
-  removeFromCartHandler,
-  createCartHandler,
-  getCartHandler,
-} from "../../controllers/user/cart.controller";
-import {
-  addToCartSchema,
-  removeFromCartSchema,
-  getCartSchema,
-  createCartSchema,
-} from "../../schema/user/cart.schema";
+import {createCartHandler} from "../../controllers/user/cart.controller";
+import {createCartSchema} from "../../schema/user/cart.schema";
 import validateResource from '../../middlware/validateResource';
 
 const router = express.Router();
 
 // إنشاء عربة تسوق جديدة
-router.post("/api/cart", createCartHandler);
+router.post("/api/cart", validateResource(createCartSchema), createCartHandler);
 
 // // إضافة منتج إلى العربة
 // router.post("/api/cart/add", validateResource(addToCartSchema), addToCartHandler);
