@@ -81,7 +81,7 @@ export class FirebaseService {
                             cartQrCode: cart._id,
                             product: {
                                 ...product.toObject(),
-                                quantity: products.count || 1
+                                quantity: updatedCart.items.find(item => item.product._id.toString() === product._id.toString())?.quantity || 0
                             }
                         });
                     } catch (error) {
