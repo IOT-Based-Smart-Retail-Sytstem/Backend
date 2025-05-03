@@ -106,6 +106,9 @@ export async function updateCart(userId: string, productId: string, quantity: nu
       if (itemIndex > -1) {
         // Update existing item quantity
         cart.items[itemIndex].quantity += quantity;
+        if(cart.items[itemIndex].quantity === 0){
+          cart.items.splice(itemIndex, 1);
+        }
       } else {
         // Add new item only if it doesn't exist
         cart.items.push({

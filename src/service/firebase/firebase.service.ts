@@ -82,9 +82,6 @@ export class FirebaseService {
                             product: {
                                 ...product.toObject(),
                                 quantity: products.count || 1
-                            },
-                            cartProduts:{
-                                updatedCart
                             }
                         });
                     } catch (error) {
