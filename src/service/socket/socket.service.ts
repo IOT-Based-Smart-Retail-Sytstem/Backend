@@ -80,6 +80,7 @@ export class SocketService {
             socket.on('disconnect', () => {
                 try {
                     console.log('Client disconnected:', socket.id);
+                    
                     // Add any cleanup logic here if needed
                 } catch (error) {
                     this.handleError(socket, error, 'disconnect');

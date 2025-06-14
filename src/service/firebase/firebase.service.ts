@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, onValue, set, DataSnapshot, get } from 'firebase/database';
+import { getDatabase, ref, onValue, set, DataSnapshot, get, remove } from 'firebase/database';
 import { Server } from 'socket.io';
 import * as dotenv from 'dotenv';
 import CartModel from '../../models/user/cart.model';
@@ -34,6 +34,16 @@ export class FirebaseService {
             return true;
         } catch (error) {
             console.error('Error updating Firebase node:', error);
+            throw error;
+        }
+    }
+
+    private async deleteNode(nodePath: string) {
+        try {
+            const nodeRef = ref(database, nodePath);
+            await remove(nodeRef);
+        } catch (error) {
+            console.error('Error deleting Firebase node:', error);
             throw error;
         }
     }
@@ -115,6 +125,7 @@ export class FirebaseService {
             }
 
             // Update Firebase scanning flag
+            await this.deleteNode(`products`);
             await this.updateNode(`start_scanning`, false);
             return true;
         } catch (error) {
