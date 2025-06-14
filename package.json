@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "test": "jest --config jest.config.js",
-    "dev": "ts-node-dev --files --transpile-only --respawn --inspect=3000 --project tsconfig.json src/app.ts",
+    "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
     "start": "node ./dist/src/app.js",
     "build": "tsc"
   },
