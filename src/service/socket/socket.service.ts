@@ -77,10 +77,10 @@ export class SocketService {
             });
 
             // Handle disconnection
-            socket.on('disconnect', () => {
+            socket.on('disconnect', async () => {
                 try {
                     console.log('Client disconnected:', socket.id);
-                    
+                    await this.firebaseService.stopCartScanning(socket.id);
                     // Add any cleanup logic here if needed
                 } catch (error) {
                     this.handleError(socket, error, 'disconnect');
