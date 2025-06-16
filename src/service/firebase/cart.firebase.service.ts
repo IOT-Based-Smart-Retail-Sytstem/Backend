@@ -116,7 +116,7 @@ export class CartFirebaseService {
         }
     }
 
-    public async stopCartScanning(cartId: string) {
+    public async clearCart(cartId: string) {
         try {
             // Update cart in database
             const cart = await CartModel.findById(cartId);
