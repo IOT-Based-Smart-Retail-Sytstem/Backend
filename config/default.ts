@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 export default{
-    port: process.env.PORT || 3000,
+    port: process.env.PORT || 3000 as number,
     dbUri :  process.env.MONGO_URL, 
     logLevel : "info" ,
     accessTokenPrivateKey: "",

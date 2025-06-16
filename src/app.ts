@@ -35,8 +35,8 @@ app.use(errorHandler);
 const port = config.get("port");
 
 connectToDb().then(() => {
-    server.listen(port, () => {
-        log.info(`Server is running at http://localhost:${port}`)
+    server.listen(Number(port), '0.0.0.0', () => {
+        log.info(`Server is running on port ${port}`)
     })
 }).catch((e) => {
     log.error(e)
