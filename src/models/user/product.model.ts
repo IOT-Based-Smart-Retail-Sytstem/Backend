@@ -1,5 +1,11 @@
 import { getModelForClass, prop } from "@typegoose/typegoose";
 
+export enum ProductState {
+    AVAILABLE = 'available',
+    OUT = 'out',
+    LOW = 'low'
+}
+
 export class Product {
     @prop({ required: true })
     title: string
@@ -44,6 +50,9 @@ export class Product {
 
     @prop({ required: false, default: [] })
     images: string[]
+
+    @prop({ required: true, enum: ProductState, default: ProductState.AVAILABLE })
+    state: ProductState
 
     @prop({ required: false, default: Date.now })
     createdAt: Date

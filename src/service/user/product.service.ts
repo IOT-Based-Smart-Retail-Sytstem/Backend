@@ -4,6 +4,24 @@ import { CustomError } from "../../utils/custom.error";
 import CategoryModel from "../../models/user/category.model";
 import { Types } from "mongoose";
 
+export async function updateProductState(productId: string, state: string) {
+    try {
+        const product = await ProductModel.findByIdAndUpdate(
+            productId,
+            { state },
+            { new: true }
+        );
+        
+        if (!product) {
+            throw new Error('Product not found');
+        }
+        
+        return product;
+    } catch (error) {
+        console.error('Error updating product state:', error);
+        throw error;
+    }
+}
 
 export async function createProduct(input: Partial<Product>) {
   try {
