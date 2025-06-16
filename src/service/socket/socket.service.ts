@@ -1,11 +1,13 @@
 import { Server, Socket } from 'socket.io';
-import { FirebaseService } from '../firebase/firebase.service';
+import { CartFirebaseService } from '../firebase/cart.firebase.service';
+import { ShelfFirebaseService } from '../firebase/shelf.firebase.service';
 import { CustomError } from '../../utils/custom.error';
 import { Code } from '../../utils/httpStatus';
 
 export class SocketService {
     private io: Server;
-    private firebaseService: FirebaseService;
+    private cartFirebaseService: CartFirebaseService;
+    private shelfFirebaseService: ShelfFirebaseService;
 
     constructor(server: any) {
         this.io = new Server(server, {
@@ -14,7 +16,11 @@ export class SocketService {
                 methods: ["GET", "POST", "PUT"]
             }
         });
-        this.firebaseService = new FirebaseService(this.io);
+        
+        // Initialize both Firebase services
+        this.cartFirebaseService = new CartFirebaseService(this.io);
+        this.shelfFirebaseService = new ShelfFirebaseService(this.io);
+        
         this.setupSocketHandlers();
     }
 
@@ -45,7 +51,7 @@ export class SocketService {
                     const { cartQrCode, userId } = data;
                     socket.join(userId);
 
-                    await this.firebaseService.startCartScanning(cartQrCode, userId);
+                    await this.cartFirebaseService.startCartScanning(cartQrCode, userId);
 
                     socket.emit('cart-connected', {
                         success: true,
@@ -65,7 +71,7 @@ export class SocketService {
                     }
 
                     const { cartQrCode } = data;
-                    await this.firebaseService.stopCartScanning(cartQrCode);
+                    await this.cartFirebaseService.stopCartScanning(cartQrCode);
                     
                     socket.emit('scanning-stopped', {
                         success: true,
@@ -80,8 +86,9 @@ export class SocketService {
             socket.on('disconnect', async () => {
                 try {
                     console.log('Client disconnected:', socket.id);
-                    await this.firebaseService.stopCartScanning(socket.id);
-                    // Add any cleanup logic here if needed
+                    // Note: You might want to track active carts per socket
+                    // and stop scanning for that specific cart instead of using socket.id
+                    // await this.cartFirebaseService.stopCartScanning(cartId);
                 } catch (error) {
                     this.handleError(socket, error, 'disconnect');
                 }
@@ -97,4 +104,4 @@ export class SocketService {
     public getIO(): Server {
         return this.io;
     }
-} 
+}
