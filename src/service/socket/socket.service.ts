@@ -37,13 +37,13 @@ export class SocketService {
             }
 
             // Use the verifyJwt utility
-            const decoded = verifyJwt<{ userId: string }>(token, 'accessTokenPublicKey');
-            if (!decoded || !decoded.userId) {
+            const decoded = verifyJwt<{ _id: string }>(token, 'accessTokenPublicKey');
+            if (!decoded || !decoded._id) {
                 throw new CustomError('Invalid token', Code.Unauthorized);
             }
 
             // Attach the userId to the socket for later use
-            socket.handshake.auth.userId = decoded.userId;
+            socket.handshake.auth.userId = decoded._id;
             next();
         } catch (error) {
             next(error instanceof Error ? error : new Error('Authentication failed'));
