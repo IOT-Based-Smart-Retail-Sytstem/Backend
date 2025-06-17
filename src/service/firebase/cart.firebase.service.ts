@@ -2,8 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, onValue, set, DataSnapshot, get, remove } from 'firebase/database';
 import { Server } from 'socket.io';
 import * as dotenv from 'dotenv';
-import CartModel from '../../models/user/cart.model';
-import { connectUserToCart, getUserCart, updateCart } from '../user/cart.service';
+import { connectUserToCart, getUserCart, updateCart, getCartByQrCode } from '../user/cart.service';
 import { getProductByBarcode } from '../user/product.service';
 
 dotenv.config();
@@ -116,10 +115,11 @@ export class CartFirebaseService {
         }
     }
 
-    public async clearCart(cartId: string) {
+    public async clearCart(cartQrCode: string) {
         try {
             // Update cart in database
-            const cart = await CartModel.findById(cartId);
+            const cart = await getCartByQrCode(cartQrCode);
+            console.log("cart in clearCart", cart);
             if (cart) {
                 cart.isActive = false;
                 cart.items = [];

@@ -105,7 +105,6 @@ export class SocketService {
                     if (!socketData) {
                         throw new CustomError('No cart data found for this socket', Code.BadRequest);
                     }
-
                     const { cartQrCode } = socketData;
                     await this.cartFirebaseService.clearCart(cartQrCode);
                     this.socketDataMap.delete(socket.id);
