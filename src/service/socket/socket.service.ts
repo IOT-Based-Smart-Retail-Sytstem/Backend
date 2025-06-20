@@ -23,9 +23,7 @@ export class SocketService {
         this.io.use(this.authenticateSocket);
         
         // Initialize both Firebase services
-        this.cartFirebaseService = new CartFirebaseService(this.io);
-        this.shelfFirebaseService = new ShelfFirebaseService(this.io);
-        
+        this.cartFirebaseService = new CartFirebaseService(this.io);        
         this.setupSocketHandlers();
     }
 

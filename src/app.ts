@@ -12,8 +12,22 @@ import cors from 'cors'
 import http from 'http';
 import { SocketService } from './service/socket/socket.service';
 
+import { ShelfFirebaseService } from './service/firebase/shelf.firebase.service';
+import { ShelfSocketService } from './service/socket/shelf.socket.service';
+
 const app = express();
 const server = http.createServer(app);
+
+new ShelfFirebaseService();
+
+try {
+    new ShelfSocketService(server);
+    log.info('ShelfSocketService started successfully');
+  } catch (err) {
+    log.error('Failed to initialize ShelfSocketService:', err instanceof Error ? err.message : String(err));
+    process.exit(1);
+  }
+  
 
 // Initialize Socket.IO service
 try {
