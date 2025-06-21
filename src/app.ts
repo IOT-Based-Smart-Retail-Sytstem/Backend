@@ -11,7 +11,7 @@ import cookieParser from "cookie-parser";
 import cors from 'cors'
 import http from 'http';
 import { Server } from 'socket.io';
-import { SocketService } from './service/socket/socket.service';
+import { SocketService } from './service/socket/cart.socket.service';
 
 import { ShelfFirebaseService } from './service/firebase/shelf.firebase.service';
 import { ShelfSocketService } from './service/socket/shelf.socket.service';

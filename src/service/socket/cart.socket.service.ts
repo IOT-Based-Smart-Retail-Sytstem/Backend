@@ -1,6 +1,5 @@
 import { Server, Socket, Namespace } from 'socket.io';
 import { CartFirebaseService } from '../firebase/cart.firebase.service';
-import { ShelfFirebaseService } from '../firebase/shelf.firebase.service';
 import { CustomError } from '../../utils/custom.error';
 import { Code } from '../../utils/httpStatus';
 import { verifyJwt } from '../../utils/jwt';
@@ -8,7 +7,6 @@ import { verifyJwt } from '../../utils/jwt';
 export class SocketService {
     private io: Namespace;
     private cartFirebaseService: CartFirebaseService;
-    private shelfFirebaseService: ShelfFirebaseService;
     private socketDataMap: Map<string, { cartQrCode: string, userId: string }> = new Map();
 
     constructor(io: Namespace) {
