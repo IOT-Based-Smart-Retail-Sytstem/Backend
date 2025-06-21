@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, onValue, set, DataSnapshot, get, remove } from 'firebase/database';
-import { Server } from 'socket.io';
+import { Server, Namespace } from 'socket.io';
 import * as dotenv from 'dotenv';
 import { connectUserToCart, getUserCart, updateCart, getCartByQrCode } from '../user/cart.service';
 import { getProductByBarcode } from '../user/product.service';
@@ -17,9 +17,9 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
 export class CartFirebaseService {
-    private io: Server;
+    private io: Namespace;
 
-    constructor(io: Server) {
+    constructor(io: Namespace) {
         console.log('CartFirebaseService initialized');
         this.io = io;
         this.printDatabaseState();

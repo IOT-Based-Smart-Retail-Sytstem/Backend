@@ -1,4 +1,4 @@
-import { Server, Socket } from 'socket.io';
+import { Server, Socket, Namespace } from 'socket.io';
 import { CartFirebaseService } from '../firebase/cart.firebase.service';
 import { ShelfFirebaseService } from '../firebase/shelf.firebase.service';
 import { CustomError } from '../../utils/custom.error';
@@ -6,18 +6,13 @@ import { Code } from '../../utils/httpStatus';
 import { verifyJwt } from '../../utils/jwt';
 
 export class SocketService {
-    private io: Server;
+    private io: Namespace;
     private cartFirebaseService: CartFirebaseService;
     private shelfFirebaseService: ShelfFirebaseService;
     private socketDataMap: Map<string, { cartQrCode: string, userId: string }> = new Map();
 
-    constructor(server: any) {
-        this.io = new Server(server, {
-            cors: {
-                origin: "*", // Configure this based on your needs
-                methods: ["GET", "POST", "PUT"]
-            }
-        });
+    constructor(io: Namespace) {
+        this.io = io;
         
         // Add authentication middleware
         this.io.use(this.authenticateSocket);
@@ -154,7 +149,7 @@ export class SocketService {
         });
     }
 
-    public getIO(): Server {
+    public getIO(): Namespace {
         return this.io;
     }
 }

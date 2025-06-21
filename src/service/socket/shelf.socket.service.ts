@@ -1,21 +1,16 @@
 // shelf.socket.service.ts
-import { Server, Socket } from 'socket.io';
+import { Server, Socket, Namespace } from 'socket.io';
 import { shelfEventEmitter } from '../firebase/shelf.firebase.service';
 import { getProductByBarcode, updateProductState } from '../user/product.service';
 import { CustomError } from '../../utils/custom.error';
 import { Code } from '../../utils/httpStatus';
 
 export class ShelfSocketService {
-    private io: Server;
+    private io: Namespace;
     private readonly SHELF_BARCODE = '62220335232438';
 
-    constructor(server: any) {
-        this.io = new Server(server, {
-            cors: {
-                origin: '*',
-                methods: ['GET', 'POST']
-            }
-        });
+    constructor(io: Namespace) {
+        this.io = io;
 
         this.listenToFirebaseEvents();
         this.setupSocketHandlers();
@@ -79,7 +74,7 @@ export class ShelfSocketService {
         });
     }
 
-    public getIO(): Server {
+    public getIO(): Namespace {
         return this.io;
     }
 }
