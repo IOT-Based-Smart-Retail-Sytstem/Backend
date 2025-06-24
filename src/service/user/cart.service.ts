@@ -3,6 +3,7 @@ import UserModel from "../../models/user/user.model";
 import { CustomError } from "../../utils/custom.error";
 import { Code } from "../../utils/httpStatus";
 import { Product } from '../../models/user/product.model';
+import type { DocumentType } from '@typegoose/typegoose';
 
 
 /**
@@ -95,19 +96,14 @@ export async function connectUserToCart(userId: string, cartQrCode: string) {
  */
 export async function updateCart(
   userId: string,
-  product: Product,
+  product: DocumentType<Product>,
   quantity: number
 ) {
   try {
     const cart = await getUserCart(userId);
     // console.log("cart before updateCart", cart)
       const itemIndex = cart.items.findIndex(
-        (item) => {
-          const itemProductId = typeof item.product === 'object' && item.product !== null
-            ? item.product._id?.toString()
-            : item.product?.toString();
-          return itemProductId === product._id.toString();
-        }
+        (item) => item.product._id.toString() === product._id.toString()
       );
 
       if (itemIndex > -1) {
