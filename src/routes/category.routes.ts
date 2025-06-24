@@ -1,7 +1,7 @@
 import express from 'express';
-import { createMainCategoryHandler, createSubCategoryHandler, getMainCategoriesHandler, getMainCategoryHandler, getSubCategoriesHandler, updateCategoryHandler } from '../../controllers/user/category.controller';
-import { createCategorySchema, updateCategorySchema, getCategorySchema } from '../../schema/user/category.schema';
-import validateResource from '../../middlware/validateResource';
+import { createMainCategoryHandler, createSubCategoryHandler, getMainCategoriesHandler, getMainCategoryHandler, getSubCategoriesHandler, updateCategoryHandler } from '../controllers/category.controller';
+import { createCategorySchema, updateCategorySchema, getCategorySchema } from '../schema/user/category.schema';
+import validateResource from '../middlware/validateResource';
 
 const router = express.Router();
 router.post('/api/category', validateResource(createCategorySchema), createMainCategoryHandler);

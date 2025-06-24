@@ -1,5 +1,5 @@
-import UserModel, { User ,privateFields } from "../../models/user/user.model";
-import { CustomError } from "../../utils/custom.error";
+import UserModel, { User } from "../models/user.model";
+import { CustomError } from "../utils/custom.error";
 
 export function createUser(input: Partial<User>) {
   return UserModel.create(input);

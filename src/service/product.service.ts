@@ -1,7 +1,7 @@
-import ProductModel, {Product} from "../../models/user/product.model";
+import ProductModel, {Product} from "../models/product.model";
 import { Request } from "express";
-import { CustomError } from "../../utils/custom.error";
-import CategoryModel from "../../models/user/category.model";
+import { CustomError } from "../utils/custom.error";
+import CategoryModel from "../models/category.model";
 import { Types } from "mongoose";
 
 export async function updateProductState(productId: string, state: string) {

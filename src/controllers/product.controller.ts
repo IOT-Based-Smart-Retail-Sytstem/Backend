@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { createProduct, getAllProducts, getProductById, getProductsByCategory, getProductsBySubCategory, searchForProduct } from "../../service/user/product.service";
+import { createProduct, getAllProducts, getProductById, getProductsByCategory, getProductsBySubCategory, searchForProduct } from "../service/product.service";
 
 export async function createProductHandler(req: Request, res: Response, next: NextFunction) {
     const body = req.body;

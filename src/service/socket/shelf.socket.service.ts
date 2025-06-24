@@ -1,7 +1,7 @@
 // shelf.socket.service.ts
 import { Server, Socket, Namespace } from 'socket.io';
 import { shelfEventEmitter } from '../firebase/shelf.firebase.service';
-import { getProductByBarcode, updateProductState } from '../user/product.service';
+import { getProductByBarcode, updateProductState } from '../product.service';
 import { CustomError } from '../../utils/custom.error';
 import { Code } from '../../utils/httpStatus';
 

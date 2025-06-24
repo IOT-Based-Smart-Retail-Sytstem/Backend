@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { createContact, getContactById, getAllContacts } from '../../service/user/contact.service';
+import { createContact, getContactById, getAllContacts } from '../service/contact.service';
 
 export async function createContactHandler(req: Request, res: Response, next: NextFunction) {
     const body = req.body;

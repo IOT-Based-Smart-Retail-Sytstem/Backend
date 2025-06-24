@@ -1,5 +1,5 @@
-import CategoryModel, {Category} from "../../models/user/category.model";
-import { CustomError } from "../../utils/custom.error";
+import CategoryModel, {Category} from "../models/category.model";
+import { CustomError } from "../utils/custom.error";
 
 /**
  * Creates a new main category (category without parent)

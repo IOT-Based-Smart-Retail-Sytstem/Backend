@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { CreateCartInput } from "../../schema/user/cart.schema";
-import { createCart } from "../../service/user/cart.service";
-import { Code, Status } from "../../utils/httpStatus";
+import { CreateCartInput } from "../schema/user/cart.schema";
+import { createCart } from "../service/cart.service";
+import { Code, Status } from "../utils/httpStatus";
 
 export const createCartHandler = async (req: Request<{}, {}, CreateCartInput>, res: Response) => {
   const { qrCode } = req.body;

@@ -1,4 +1,4 @@
-import { OrderModel } from "../../models/user/order.model";
+import { OrderModel } from "../models/order.model";
 
 export async function createOrder(
   userId: string, 

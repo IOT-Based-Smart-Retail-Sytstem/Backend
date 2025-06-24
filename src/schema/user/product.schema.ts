@@ -1,5 +1,5 @@
-import { array, number, object, string, TypeOf, enum as zodEnum } from "zod";
-import { ProductState } from "../../models/user/product.model";
+import { number, object, string, TypeOf, enum as zodEnum } from "zod";
+import { ProductState } from "../../models/product.model";
 
 export const createProductSchema = object({
     body: object({

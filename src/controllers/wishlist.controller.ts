@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { addToWishlist, getWishlist, removeFromWishlist } from "../../service/user/wishlist.service";
+import { addToWishlist, getWishlist, removeFromWishlist } from "../service/wishlist.service";
 
 
 export async function addToWishlistHandler(req: Request, res: Response, next: NextFunction) {

@@ -2,8 +2,8 @@ import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, onValue, set, DataSnapshot, get, remove, off } from 'firebase/database';
 import { Namespace } from 'socket.io';
 import * as dotenv from 'dotenv';
-import { connectUserToCart, getUserCart, updateCart, getCartByQrCode } from '../user/cart.service';
-import { getProductByBarcode } from '../user/product.service';
+import { connectUserToCart, getUserCart, updateCart, getCartByQrCode } from '../cart.service';
+import { getProductByBarcode } from '../product.service';
 
 dotenv.config();
 

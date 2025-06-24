@@ -1,7 +1,7 @@
 import express from "express";
-import {createCartHandler} from "../../controllers/user/cart.controller";
-import {createCartSchema} from "../../schema/user/cart.schema";
-import validateResource from '../../middlware/validateResource';
+import {createCartHandler} from "../controllers/cart.controller";
+import {createCartSchema} from "../schema/user/cart.schema";
+import validateResource from '../middlware/validateResource';
 
 const router = express.Router();
 

@@ -1,8 +1,8 @@
-import CartModel from "../../models/user/cart.model";
-import UserModel from "../../models/user/user.model";
-import { CustomError } from "../../utils/custom.error";
-import { Code } from "../../utils/httpStatus";
-import { Product } from '../../models/user/product.model';
+import CartModel from "../models/cart.model";
+import UserModel from "../models/user.model";
+import { CustomError } from "../utils/custom.error";
+import { Code } from "../utils/httpStatus";
+import { Product } from '../models/product.model';
 import type { DocumentType } from '@typegoose/typegoose';
 
 

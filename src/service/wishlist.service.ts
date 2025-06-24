@@ -1,9 +1,7 @@
-import WishlistModel from "../../models/user/wishlist.model";
-import { CustomError } from "../../utils/custom.error";
+import WishlistModel from "../models/wishlist.model";
+import { CustomError } from "../utils/custom.error";
 import { findUserById } from "./user.service";
 import {getProductById} from "./product.service";
-import c from "config";
-import { Wishlist } from '../../models/user/wishlist.model';
 
 
 export async function createWishlist(userId: string) {
