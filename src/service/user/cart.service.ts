@@ -1,9 +1,8 @@
-import { Types } from "mongoose";
 import CartModel from "../../models/user/cart.model";
 import UserModel from "../../models/user/user.model";
-import { getProductById } from "./product.service";
 import { CustomError } from "../../utils/custom.error";
 import { Code } from "../../utils/httpStatus";
+import { Product } from '../../models/user/product.model';
 
 
 /**
@@ -94,32 +93,41 @@ export async function connectUserToCart(userId: string, cartQrCode: string) {
  * @param quantity - The quantity of the product to add
  * @returns The updated cart
  */
-export async function updateCart(userId: string, productId: string, quantity: number){
+export async function updateCart(
+  userId: string,
+  product: Product,
+  quantity: number
+) {
   try {
-    const product = await getProductById(productId);
     const cart = await getUserCart(userId);
     // console.log("cart before updateCart", cart)
       const itemIndex = cart.items.findIndex(
-        (item) => item.product._id.toString() === productId
+        (item) => {
+          const itemProductId = typeof item.product === 'object' && item.product !== null
+            ? item.product._id?.toString()
+            : item.product?.toString();
+          return itemProductId === product._id.toString();
+        }
       );
 
       if (itemIndex > -1) {
         // Update existing item quantity
         cart.items[itemIndex].quantity += quantity;
+        console.log("cart.items[itemIndex].quantity", cart.items[itemIndex].quantity)
         if(cart.items[itemIndex].quantity === 0){
           cart.items.splice(itemIndex, 1);
         }
       } else {
         // Add new item only if it doesn't exist
         cart.items.push({
-          product: new Types.ObjectId(productId),
+          product: product._id,
           quantity
         });
       }
 
       // Recalculate total price based on all items
       cart.totalPrice += product.price * quantity;
-      // console.log("cart in updateCart", cart)
+      console.log("cart in updateCart", cart)
       await cart.save();
       return cart;
   } catch (error) {

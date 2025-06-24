@@ -7,7 +7,7 @@ import { verifyJwt } from '../../utils/jwt';
 export class SocketService {
     private io: Namespace;
     private cartFirebaseService: CartFirebaseService;
-    private socketDataMap: Map<string, { cartQrCode: string, userId: string }> = new Map();
+    private socketDataMap: Map<string, { cartQrCode: string, userId: string, isScanning: boolean }> = new Map();
 
     constructor(io: Namespace) {
         this.io = io;
@@ -62,6 +62,24 @@ export class SocketService {
         return userId;
     }
 
+    private async cleanupSocketScanning(socketId: string) {
+        try {
+            const socketData = this.socketDataMap.get(socketId);
+            if (socketData && socketData.isScanning) {
+                console.log(`Cleaning up scanning for socket ${socketId}`);
+                
+                // Stop the Firebase listener (don't clear cart data)
+                await this.cartFirebaseService.stopCartScanning();
+                
+                // Update scanning status
+                socketData.isScanning = false;
+                this.socketDataMap.set(socketId, socketData);
+            }
+        } catch (error) {
+            console.error('Error cleaning up socket scanning:', error);
+        }
+    }
+
     private setupSocketHandlers() {
         this.io.on('connection', (socket: Socket) => {
             console.log('Client connected:', socket.id);
@@ -71,19 +89,35 @@ export class SocketService {
                 try {
                     const socketData = this.socketDataMap.get(socket.id);
                     if (!socketData) {
-                        throw new CustomError('No cart data found for this socket', Code.BadRequest);
+                        throw new CustomError('No cart data found for this socket. Please set cart data first.', Code.BadRequest);
+                    }
+
+                    // Check if already scanning
+                    if (socketData.isScanning) {
+                        console.log('Already scanning for this socket, stopping previous scan first');
+                        await this.cleanupSocketScanning(socket.id);
                     }
 
                     const { cartQrCode } = socketData;
                     const userId = this.getUserIdFromSocket(socket);
-                    socket.join(socket.id);
+                    
+                    // Join user-specific room for real-time updates
+                    socket.join(userId);
+                    
+                    // Start scanning
                     await this.cartFirebaseService.startCartScanning(cartQrCode, userId);
+                    
+                    // Update scanning status
+                    socketData.isScanning = true;
+                    this.socketDataMap.set(socket.id, socketData);
 
                     socket.emit('cart-connected', {
                         success: true,
                         cartQrCode,
-                        message: 'Successfully connected to cart'
+                        message: 'Successfully connected to cart and started scanning'
                     });
+                    
+                    console.log(`Started scanning for user ${userId} with cart ${cartQrCode}`);
                 } catch (error) {
                     this.handleError(socket, error, 'scan-cart-qr');
                 }
@@ -96,31 +130,86 @@ export class SocketService {
                     if (!socketData) {
                         throw new CustomError('No cart data found for this socket', Code.BadRequest);
                     }
-                    const { cartQrCode } = socketData;
-                    await this.cartFirebaseService.clearCart(cartQrCode);
-                    this.socketDataMap.delete(socket.id);
+
+                    if (!socketData.isScanning) {
+                        socket.emit('scanning-stopped', {
+                            success: true,
+                            message: 'Cart scanning was not active'
+                        });
+                        return;
+                    }
+
+                    // Stop scanning but keep cart data
+                    await this.cleanupSocketScanning(socket.id);
                     
                     socket.emit('scanning-stopped', {
                         success: true,
                         message: 'Cart scanning stopped successfully'
                     });
+                    
+                    console.log(`Stopped scanning for socket ${socket.id}`);
                 } catch (error) {
                     this.handleError(socket, error, 'stop-cart-scanning');
                 }
             });
 
+            // Clear cart and stop scanning
+            socket.on('clear-cart', async () => {
+                try {
+                    const socketData = this.socketDataMap.get(socket.id);
+                    if (!socketData) {
+                        throw new CustomError('No cart data found for this socket', Code.BadRequest);
+                    }
+
+                    const { cartQrCode } = socketData;
+                    
+                    // Clear the cart (this will also stop scanning)
+                    await this.cartFirebaseService.clearCart(cartQrCode);
+                    
+                    // Remove from socket data map
+                    this.socketDataMap.delete(socket.id);
+                    
+                    socket.emit('cart-cleared', {
+                        success: true,
+                        message: 'Cart cleared successfully'
+                    });
+                    
+                    console.log(`Cleared cart ${cartQrCode} for socket ${socket.id}`);
+                } catch (error) {
+                    this.handleError(socket, error, 'clear-cart');
+                }
+            });
+
             // Set cart data
-            socket.on('set-cart-data', (data: { cartQrCode: string }) => {
+            socket.on('set-cart-data', async (data: { cartQrCode: string }) => {
                 try {
                     if (!data.cartQrCode) {
                         throw new CustomError('Missing cart QR code', Code.BadRequest);
                     }
+                    
                     const userId = this.getUserIdFromSocket(socket);
-                    this.socketDataMap.set(socket.id, { cartQrCode: data.cartQrCode, userId });
+                    
+                    // If socket already has data and is scanning, stop it first
+                    const existingData = this.socketDataMap.get(socket.id);
+                    if (existingData && existingData.isScanning) {
+                        console.log('Stopping existing scan before setting new cart data');
+                        await this.cleanupSocketScanning(socket.id);
+                    }
+                    
+                    // Set new cart data
+                    this.socketDataMap.set(socket.id, { 
+                        cartQrCode: data.cartQrCode, 
+                        userId,
+                        isScanning: false 
+                    });
+                    
                     socket.emit('cart-data-set', {
                         success: true,
+                        cartQrCode: data.cartQrCode,
                         message: 'Cart data set successfully'
                     });
+                    
+                    console.log(`Set cart data for socket ${socket.id}: ${data.cartQrCode}`);
                 } catch (error) {
                     this.handleError(socket, error, 'set-cart-data');
                 }
@@ -130,13 +219,16 @@ export class SocketService {
             socket.on('disconnect', async () => {
                 try {
                     console.log('Client disconnected:', socket.id);
-                    const socketData = this.socketDataMap.get(socket.id);
-                    if (socketData) {
-                        await this.cartFirebaseService.clearCart(socketData.cartQrCode);
-                        this.socketDataMap.delete(socket.id);
-                    }
+                    
+                    // Clean up scanning (but don't clear cart data)
+                    await this.cleanupSocketScanning(socket.id);
+                    
+                    // Remove from map
+                    this.socketDataMap.delete(socket.id);
+                    
+                    console.log(`Cleaned up socket ${socket.id}`);
                 } catch (error) {
-                    this.handleError(socket, error, 'disconnect');
+                    console.error('Error handling disconnect:', error);
                 }
             });
 
@@ -145,6 +237,25 @@ export class SocketService {
                 this.handleError(socket, error, 'socket-error');
             });
         });
+    }
+
+    // Utility method to get active scanning sessions
+    public getActiveScanningCount(): number {
+        let count = 0;
+        for (const [_, data] of this.socketDataMap) {
+            if (data.isScanning) count++;
+        }
+        return count;
+    }
+
+    // Utility method to check if a user is scanning
+    public isUserScanning(userId: string): boolean {
+        for (const [_, data] of this.socketDataMap) {
+            if (data.userId === userId && data.isScanning) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public getIO(): Namespace {

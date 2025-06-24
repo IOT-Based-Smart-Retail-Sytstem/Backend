@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, onValue, set, DataSnapshot, get, remove } from 'firebase/database';
-import { Server, Namespace } from 'socket.io';
+import { getDatabase, ref, onValue, set, DataSnapshot, get, remove, off } from 'firebase/database';
+import { Namespace } from 'socket.io';
 import * as dotenv from 'dotenv';
 import { connectUserToCart, getUserCart, updateCart, getCartByQrCode } from '../user/cart.service';
 import { getProductByBarcode } from '../user/product.service';
@@ -18,6 +18,11 @@ const database = getDatabase(app);
 
 export class CartFirebaseService {
     private io: Namespace;
+    private lastEventKey: string | null = null;
+    
+    // Store the current listener reference to properly clean it up
+    private currentListener: (() => void) | null = null;
+    private currentUserId: string | null = null;
 
     constructor(io: Namespace) {
         console.log('CartFirebaseService initialized');
@@ -61,53 +66,78 @@ export class CartFirebaseService {
         }
     }
 
+    // Clean up existing listener before creating a new one
+    private cleanupListener() {
+        if (this.currentListener) {
+            console.log('Cleaning up existing Firebase listener');
+            this.currentListener(); // This calls the unsubscribe function
+            this.currentListener = null;
+        }
+    }
+
     public async startCartScanning(cartQrCode: string, userId: string) {
         try {
-            // Update cart with userId
+            // Clean up any existing listener first
+            this.cleanupListener();
+
+            // Connect user to cart
             const cart = await connectUserToCart(userId, cartQrCode);
             console.log("cart", cart);
+
+            // Store current user ID
+            this.currentUserId = userId;
 
             // Set scanning flag in Firebase
             await this.updateNode(`start_scanning`, true);
 
-            // Listen to products node for barcode scans
             const productsRef = ref(database, 'products');
-            onValue(productsRef, async (snapshot: DataSnapshot) => {
+
+            // Create the listener and store the unsubscribe function
+            this.currentListener = onValue(productsRef, async (snapshot: DataSnapshot) => {
                 const products = snapshot.val();
-                if (!products) return;
-                
-                if (products && products.barcode) {
-                    try {
-                        // Find product in database by barcode
-                        console.log(products);
-                        const product = await getProductByBarcode(products.barcode);
-                        const cart = await getUserCart(userId);
-                        console.log("cart in startCartScanning", cart);
-                        
-                        const updatedCart = await updateCart(userId, product._id.toString(), products.count || 1);
-                        console.log("updatedCart in startCartScanning", updatedCart);
-                        
-                        this.io.to(userId).emit('products-update', {
-                            success: true,
-                            cartQrCode: cart._id,
-                            product: {
-                                ...product.toObject(),
-                                quantity: updatedCart.items.find(item => 
-                                    item.product._id.toString() === product._id.toString()
-                                )?.quantity || 0
-                            }
-                        });
-                    } catch (error) {
-                        console.error('Error processing scanned product:', error);
-                        this.io.to(userId).emit('error', {
-                            success: false,
-                            message: 'Failed to process scanned product',
-                            error: error instanceof Error ? error.message : String(error)
-                        });
-                    }
+                if (!products || !products.barcode || !products.timestamp) return;
+
+                // Create a unique key for this event
+                const eventKey = `${products.barcode}_${products.timestamp}`;
+
+                // Avoid duplicate events
+                if (this.lastEventKey === eventKey) {
+                    console.log('Duplicate scan ignored (same barcode & timestamp).');
+                    return;
+                }
+
+                this.lastEventKey = eventKey; // mark as processed
+
+                try {
+                    console.log('Processing product:', products);
+                    const product = await getProductByBarcode(products.barcode);
+                    const cart = await getUserCart(userId);
+                    console.log("cart in startCartScanning", cart);
+
+                    const updatedCart = await updateCart(userId, product, products.count || 1);
+                    console.log("updatedCart in startCartScanning", updatedCart);
+
+                    this.io.to(userId).emit('products-update', {
+                        success: true,
+                        cartQrCode: cart._id,
+                        product: {
+                            ...product.toObject(),
+                            quantity: updatedCart.items.find(item =>
+                                item.product._id.toString() === product._id.toString()
+                            )?.quantity || 0
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error processing scanned product:', error);
+                    this.io.to(userId).emit('error', {
+                        success: false,
+                        message: 'Failed to process scanned product',
+                        error: error instanceof Error ? error.message : String(error)
+                    });
                 }
             });
 
+            console.log(`Cart scanning started for user ${userId} with cart ${cartQrCode}`);
             return true;
         } catch (error) {
             console.error('Error starting cart scanning:', error);
@@ -115,9 +145,29 @@ export class CartFirebaseService {
         }
     }
 
+    public async stopCartScanning() {
+        try {
+            console.log('Stopping cart scanning...');
+            
+            // Clean up the listener
+            this.cleanupListener();
+            
+            // Reset state
+            this.lastEventKey = null;
+            this.currentUserId = null;
+            
+            // Update Firebase
+            await this.updateNode(`start_scanning`, false);
+            
+            return true;
+        } catch (error) {
+            console.error('Error stopping cart scanning:', error);
+            throw error;
+        }
+    }
+
     public async clearCart(cartQrCode: string) {
         try {
-            // Update cart in database
             const cart = await getCartByQrCode(cartQrCode);
             console.log("cart in clearCart", cart);
             if (cart) {
@@ -128,13 +178,26 @@ export class CartFirebaseService {
                 await cart.save();
             }
 
-            // Update Firebase scanning flag
+            // Stop scanning and clean up
+            await this.stopCartScanning();
+            
+            // Clear Firebase nodes
             await this.deleteNode(`products`);
-            await this.updateNode(`start_scanning`, false);
+
             return true;
         } catch (error) {
-            console.error('Error stopping cart scanning:', error);
+            console.error('Error clearing cart:', error);
             throw error;
         }
+    }
+
+    // Method to check if scanning is active
+    public isScanning(): boolean {
+        return this.currentListener !== null;
+    }
+
+    // Get current user ID if scanning
+    public getCurrentUserId(): string | null {
+        return this.currentUserId;
     }
 }
