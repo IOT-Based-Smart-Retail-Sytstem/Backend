@@ -30,10 +30,16 @@ export async function removeFromWishlist(userId: string, productId: string) {
     const user = await findUserById(userId);
     const product = await getProductById(productId);
     
-    const wishlist = await WishlistModel.deleteOne({ userId, products: { $elemMatch: { _id: productId } } });
+    const wishlist = await WishlistModel.findOne({ userId });
     if (!wishlist) {
+        throw new CustomError("Wishlist not found", 404);
+    }
+    const productIndex = wishlist.products.findIndex((item) => item._id.toString() === productId);
+    if(productIndex === -1) {
         throw new CustomError("Product not found in wishlist", 404);
     }
+    wishlist.products.splice(productIndex, 1);
+    await wishlist.save();
     return wishlist;
 }
 
