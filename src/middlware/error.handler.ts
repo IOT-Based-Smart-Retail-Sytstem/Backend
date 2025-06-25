@@ -3,22 +3,26 @@ import { ZodError } from 'zod';
 import log from '../utils/logger';
 import { CustomError } from '../utils/custom.error';
 
-
 export const errorHandler = (
-    error: unknown, // Use `unknown` instead of `Error` for better type safety
+    error: unknown,
     req: Request,
     res: Response,
     next: NextFunction
-  ) => {
+) => {
+    // Check if response has already been sent
+    if (res.headersSent) {
+        return next(error);
+    }
+
     if (error instanceof CustomError) {
-        res.status(error.statusCode).json({
+        return res.status(error.statusCode).json({
             success: false,
             message: error.message,
         });
     }
 
     if (error instanceof ZodError) {
-        res.status(400).json({
+        return res.status(400).json({
             success: false,
             message: 'Validation failed',
             errors: error.errors.map((err) => ({
@@ -32,7 +36,7 @@ export const errorHandler = (
     log.error('Unexpected error:', error);
 
     // Handle generic errors
-    res.status(500).json({
+    return res.status(500).json({
         success: false,
         message: 'Internal server error',
     });
