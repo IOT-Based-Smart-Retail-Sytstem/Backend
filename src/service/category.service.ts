@@ -102,3 +102,4 @@ export async function updateCategory(id: string, input: Partial<Category>) {
         throw error;
     }
 }
+

@@ -1,10 +1,9 @@
 import ProductModel, {Product} from "../models/product.model";
-import { Request } from "express";
+import { Request, NextFunction } from "express";
 import { CustomError } from "../utils/custom.error";
 import CategoryModel from "../models/category.model";
-import { Types } from "mongoose";
 
-export async function updateProductState(productId: string, state: string) {
+export async function updateProductState(productId: string, state: string, next: NextFunction) {
     try {
         const product = await ProductModel.findByIdAndUpdate(
             productId,
@@ -19,11 +18,11 @@ export async function updateProductState(productId: string, state: string) {
         return product;
     } catch (error) {
         console.error('Error updating product state:', error);
-        throw error;
+        next(error);
     }
 }
 
-export async function createProduct(input: Partial<Product>) {
+export async function createProduct(input: Partial<Product>, next: NextFunction) {
   try {
     const category = await CategoryModel.findOne({name: {$regex: input.categoryId, $options: "i"}}).exec();
     if (!category) throw new CustomError("Category not found", 404);
@@ -34,43 +33,42 @@ export async function createProduct(input: Partial<Product>) {
     input.subCategoryId = subCategory._id.toString();
     return ProductModel.create(input);
   } catch (error) {
-    console.log(error);
-    throw error;
+    next(error);
   }
 }
 
-export async function getAllProducts(req: Request) {
+export async function getAllProducts(req: Request, next: NextFunction) {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const skip = (page - 1) * limit;
     return ProductModel.find().skip(skip).limit(limit).exec();
   } catch (error) {
-    throw error;
+    next(error);
   }
 }
 
-export async function getProductById(productId: string) {
+export async function getProductById(productId: string, next: NextFunction) {
   try {
     const product = await ProductModel.findById(productId).exec();
     if (!product) throw new CustomError("Product not found", 404);
     return product;
   } catch (error) {
-    throw error;
+    next(error);
   }
 }
 
-export async function getProductByBarcode(barcode: string) {
+export async function getProductByBarcode(barcode: string, next: NextFunction) {
   try {
     const product = await ProductModel.findOne({ barcode: barcode }).exec();
     if (!product) throw new CustomError("Product not found", 404);
     return product;
   } catch (error) {
-    throw error;
+    next(error);
   }
 }
 
-export async function getBestSellingProducts(id: string) {
+export async function getBestSellingProducts(id: string, next: NextFunction) {
   try {
     const product1 = await ProductModel.find({ categoryId: id })
       .sort({ sold: -1 })
@@ -83,33 +81,33 @@ export async function getBestSellingProducts(id: string) {
       .exec();
     return product1 || product2;
   } catch (error) {
-    throw error;
+    next(error);
   }
 }
 
-export async function getProductsByCategory(categoryId: string) {
+export async function getProductsByCategory(categoryId: string, next: NextFunction) {
   try {
     const products = await ProductModel.find({ categoryId: categoryId }).exec();
     return products;
   } catch (error) {
-    throw error;
+    next(error);
   }
 }
 
-export async function getProductsBySubCategory(subCategoryId: string) {
+export async function getProductsBySubCategory(subCategoryId: string, next: NextFunction) {
   try {
     const products = await ProductModel.find({ subCategoryId: subCategoryId }).exec();
     return products;
   } catch (error) {
-    throw error;
+    next(error);
   }
 }
 
-export async function searchForProduct(search: string) {
+export async function searchForProduct(search: string, next: NextFunction) {
   try {
     const products = await ProductModel.find({ title: { $regex: search, $options: "i" } }).exec();
     return products;
   } catch (error) {
-    throw error;
+    next(error);
   }
 }
