@@ -6,6 +6,7 @@ import product from './product.routes' ;
 import cart from './cart.routes';
 import category from './category.routes';
 import wishlist from './wishlist.routes';
+import payment from './payment.routes';
 
 const router  = express.Router()
 
@@ -20,5 +21,6 @@ router.use(product) ;
 router.use(cart);
 router.use(category);
 router.use(wishlist);
+router.use(payment);
 
 export default router ;
