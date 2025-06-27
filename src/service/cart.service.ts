@@ -131,3 +131,53 @@ export async function updateCart(
     throw new CustomError('Failed to add product to cart', Code.InternalServerError);
   }
 }
+
+/**
+ * Clears a user's cart (removes all items and resets total)
+ * @param userId - The ID of the user
+ * @returns The cleared cart
+ */
+export async function clearCart(userId: string) {
+  try {
+    const cart = await getUserCart(userId);
+    
+    // Clear all items and reset total
+    cart.items = [];
+    cart.totalPrice = 0;
+    cart.isActive = false;
+    
+    await cart.save();
+    
+    return cart;
+  } catch (error) {
+    if (error instanceof CustomError) throw error;
+    throw new CustomError('Failed to clear cart', Code.InternalServerError);
+  }
+}
+
+/**
+ * Clears a cart by its ID (for webhook usage)
+ * @param cartId - The ID of the cart to clear
+ * @returns The cleared cart
+ */
+export async function clearCartById(cartId: string) {
+  try {
+    const cart = await CartModel.findById(cartId);
+    
+    if (!cart) {
+      throw new CustomError('Cart not found', Code.NotFound);
+    }
+    
+    // Clear all items and reset total
+    cart.items = [];
+    cart.totalPrice = 0;
+    cart.isActive = false;
+    
+    await cart.save();
+    
+    return cart;
+  } catch (error) {
+    if (error instanceof CustomError) throw error;
+    throw new CustomError('Failed to clear cart', Code.InternalServerError);
+  }
+}

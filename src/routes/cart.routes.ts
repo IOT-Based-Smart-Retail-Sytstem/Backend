@@ -1,5 +1,5 @@
 import express from "express";
-import {createCartHandler} from "../controllers/cart.controller";
+import {createCartHandler, clearCartHandler} from "../controllers/cart.controller";
 import {createCartSchema} from "../schema/user/cart.schema";
 import validateResource from '../middlware/validateResource';
 
@@ -14,6 +14,9 @@ router.post("/api/cart", validateResource(createCartSchema), createCartHandler);
 // // الحصول على محتويات العربة
 // router.get("/api/cart/:userId", validateResource(getCartSchema), getCartHandler);
 
+// Clear cart route
+router.delete('/clear/:userId', clearCartHandler);
+router.delete('/clear', clearCartHandler);
 
 // // حذف منتج من العربة
 // router.delete("/:productId", validateResource(removeFromCartSchema), removeFromCartHandler);
