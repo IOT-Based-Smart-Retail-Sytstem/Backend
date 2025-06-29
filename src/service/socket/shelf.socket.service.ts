@@ -1,7 +1,7 @@
 // shelf.socket.service.ts
 import { Server, Socket, Namespace } from 'socket.io';
 import { shelfEventEmitter } from '../firebase/shelf.firebase.service';
-import { getProductByBarcode, updateProductState } from '../product.service';
+import { getProductByBarcode, updateProductState, getProductStateCounts } from '../product.service';
 import { CustomError } from '../../utils/custom.error';
 import { Code } from '../../utils/httpStatus';
 
@@ -40,6 +40,9 @@ export class ShelfSocketService {
                 }
 
                 const updatedProduct = await updateProductState(product._id.toString(), shelfData.state);
+                
+                // Get updated product state counts
+                const stateCounts = await getProductStateCounts();
 
                 this.io.emit('shelf-state-update', {
                     success: true,
@@ -47,10 +50,12 @@ export class ShelfSocketService {
                         ...updatedProduct.toObject(),
                         shelfState: shelfData.state,
                         weight: shelfData.weight
-                    }
+                    },
+                    stateCounts: stateCounts
                 });
 
                 console.log('shelf update sent via socket:', shelfData);
+                console.log('Updated product state counts:', stateCounts);
             } catch (error) {
                 console.error('Error sending shelf update:', error);
                 this.io.emit('error', {

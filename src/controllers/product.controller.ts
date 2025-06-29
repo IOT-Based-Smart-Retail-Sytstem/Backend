@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { createProduct, getAllProducts, getProductById, getProductsByCategory, getProductsBySubCategory, searchForProduct } from "../service/product.service";
+import { createProduct, getAllProducts, getProductById, getProductsByCategory, getProductsBySubCategory, searchForProduct, getProductStateCounts } from "../service/product.service";
 
 export async function createProductHandler(req: Request, res: Response, next: NextFunction) {
     const body = req.body;
@@ -71,17 +71,34 @@ export async function getProductsBySubCategoryHandler(req: Request, res: Respons
     }
 }
 
-export async function searchForProductHandler(req: Request, res: Response, next: NextFunction) {
-    const search = req.params.search;
+export async function searchForProductHandler(req: Request, res: Response) {
     try {
+        const { search } = req.params;
         const products = await searchForProduct(search);
         res.status(200).json({
             success: true,
-            message: "Products fetched successfully",
             data: products
-        })
-    } catch (e: any) {
-        next(e);
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error instanceof Error ? error.message : 'Internal server error'
+        });
+    }
+}
+
+export async function getProductStateCountsHandler(req: Request, res: Response) {
+    try {
+        const stateCounts = await getProductStateCounts();
+        res.status(200).json({
+            success: true,
+            data: stateCounts
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error instanceof Error ? error.message : 'Internal server error'
+        });
     }
 }
 

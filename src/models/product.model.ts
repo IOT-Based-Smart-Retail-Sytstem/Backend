@@ -56,6 +56,9 @@ export class Product {
 
     @prop({ required: false, default: Date.now })
     createdAt: Date
+
+    @prop({ required: true })
+    shelfNumber: number
 }
 
 const ProductModel = getModelForClass(Product);

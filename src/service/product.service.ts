@@ -1,4 +1,4 @@
-import ProductModel, {Product} from "../models/product.model";
+import ProductModel, {Product, ProductState} from "../models/product.model";
 import { Request } from "express";
 import { CustomError } from "../utils/custom.error";
 import CategoryModel from "../models/category.model";
@@ -41,7 +41,24 @@ export async function getAllProducts(req: Request) {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const skip = (page - 1) * limit;
-    return ProductModel.find().skip(skip).limit(limit).exec();
+    
+    const products = await ProductModel.find().skip(skip).limit(limit).exec();
+    
+    // Fetch category and subcategory names for each product
+    const productsWithCategories = await Promise.all(
+      products.map(async (product) => {
+        const category = await CategoryModel.findById(product.categoryId).exec();
+        const subCategory = await CategoryModel.findById(product.subCategoryId).exec();
+        
+        return {
+          ...product.toObject(),
+          categories: category?.name || 'Unknown Category',
+          subCategoryName: subCategory?.name || 'Unknown Subcategory'
+        };
+      })
+    );
+    
+    return productsWithCategories;
   } catch (error) {
     throw error;
   }
@@ -106,6 +123,74 @@ export async function searchForProduct(search: string) {
   try {
     const products = await ProductModel.find({ title: { $regex: search, $options: "i" } }).exec();
     return products;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getProductStateCounts() {
+  try {
+    const counts = await ProductModel.aggregate([
+      {
+        $group: {
+          _id: '$state',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    // Initialize default counts
+    const stateCounts = {
+      available: 0,
+      out: 0,
+      low: 0,
+      total: 0
+    };
+
+    // Map the aggregation results to our desired format
+    counts.forEach(item => {
+      if (item._id in stateCounts) {
+        stateCounts[item._id as keyof typeof stateCounts] = item.count;
+      }
+    });
+
+    // Calculate total
+    stateCounts.total = stateCounts.available + stateCounts.out + stateCounts.low;
+
+    return stateCounts;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function updateProductStockAndState(productId: string, quantityScanned: number) {
+  try {
+    const product = await ProductModel.findById(productId);
+    if (!product) {
+      throw new Error('Product not found');
+    }
+
+    // Update stock
+    const newStock = Math.max(0, product.stock - quantityScanned);
+    product.stock = newStock;
+
+    // Update sold count
+    product.sold += quantityScanned;
+
+    // Automatically update state based on stock level
+    let newState = product.state;
+    if (newStock === 0) {
+      newState = ProductState.OUT;
+    } else if (newStock <= 5) {
+      newState = ProductState.LOW;
+    } else {
+      newState = ProductState.AVAILABLE;
+    }
+
+    product.state = newState;
+
+    const updatedProduct = await product.save();
+    return updatedProduct;
   } catch (error) {
     throw error;
   }

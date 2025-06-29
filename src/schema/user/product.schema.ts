@@ -14,6 +14,7 @@ export const createProductSchema = object({
         barcode: string({ required_error: 'Barcode is required' }),
         stock: number({ required_error: 'Stock is required' }),
         item_weight: string({ required_error: 'Item weight is required' }),
+        shelfNumber: number({ required_error: 'Shelf number is required' }),
         state: zodEnum([ProductState.AVAILABLE, ProductState.OUT, ProductState.LOW], {
             required_error: 'State is required',
             invalid_type_error: 'Invalid state value'
