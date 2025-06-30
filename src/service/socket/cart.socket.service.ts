@@ -1,4 +1,4 @@
-import { Server, Socket, Namespace } from 'socket.io';
+import { Socket, Namespace } from 'socket.io';
 import { CartFirebaseService } from '../firebase/cart.firebase.service';
 import { CustomError } from '../../utils/custom.error';
 import { Code } from '../../utils/httpStatus';
