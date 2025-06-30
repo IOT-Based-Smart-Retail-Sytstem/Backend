@@ -44,13 +44,19 @@ export class ShelfSocketService {
                 // Get updated product state counts
                 const stateCounts = await getProductStateCounts();
 
+                // Send shelf state update event
                 this.io.emit('shelf-state-update', {
                     success: true,
                     product: {
                         ...updatedProduct.toObject(),
                         shelfState: shelfData.state,
                         weight: shelfData.weight
-                    },
+                    }
+                });
+
+                // Send separate state counts event
+                this.io.emit('product-states-update', {
+                    success: true,
                     stateCounts: stateCounts
                 });
 

@@ -3,7 +3,7 @@ import { getDatabase, ref, onValue, set, DataSnapshot, get, remove, off } from '
 import { Namespace } from 'socket.io';
 import * as dotenv from 'dotenv';
 import { connectUserToCart, getUserCart, updateCart, getCartByQrCode } from '../cart.service';
-import { getProductByBarcode } from '../product.service';
+import { getProductByBarcode, getProductStateCounts } from '../product.service';
 
 dotenv.config();
 
@@ -117,6 +117,10 @@ export class CartFirebaseService {
                     const updatedCart = await updateCart(userId, product, products.count || 1);
                     console.log("updatedCart in startCartScanning", updatedCart);
 
+                    // Get current product state counts (without updating stock)
+                    const stateCounts = await getProductStateCounts();
+
+                    // Send products update event
                     this.io.to(userId).emit('products-update', {
                         success: true,
                         cartQrCode: cart._id,
@@ -126,6 +130,12 @@ export class CartFirebaseService {
                                 item.product._id.toString() === product._id.toString()
                             )?.quantity || 0
                         }
+                    });
+
+                    // Send separate state counts event
+                    this.io.to(userId).emit('product-states-update', {
+                        success: true,
+                        stateCounts: stateCounts
                     });
                 } catch (error) {
                     console.error('Error processing scanned product:', error);

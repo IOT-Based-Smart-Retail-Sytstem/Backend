@@ -161,37 +161,4 @@ export async function getProductStateCounts() {
   } catch (error) {
     throw error;
   }
-}
-
-export async function updateProductStockAndState(productId: string, quantityScanned: number) {
-  try {
-    const product = await ProductModel.findById(productId);
-    if (!product) {
-      throw new Error('Product not found');
-    }
-
-    // Update stock
-    const newStock = Math.max(0, product.stock - quantityScanned);
-    product.stock = newStock;
-
-    // Update sold count
-    product.sold += quantityScanned;
-
-    // Automatically update state based on stock level
-    let newState = product.state;
-    if (newStock === 0) {
-      newState = ProductState.OUT;
-    } else if (newStock <= 5) {
-      newState = ProductState.LOW;
-    } else {
-      newState = ProductState.AVAILABLE;
-    }
-
-    product.state = newState;
-
-    const updatedProduct = await product.save();
-    return updatedProduct;
-  } catch (error) {
-    throw error;
-  }
-}
+} 
