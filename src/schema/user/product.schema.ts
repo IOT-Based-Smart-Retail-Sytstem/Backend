@@ -22,4 +22,23 @@ export const createProductSchema = object({
     })
 });
 
+export const updateProductSchema = object({
+    body: object({
+        title: string().optional(),
+        price: number().optional(),
+        description: string().optional(),
+        highlights: string().optional(),
+        brand: string().optional(),
+        subCategoryId: string().optional(),
+        categoryId: string().optional(),
+        image_url: string().optional(),
+        barcode: string().optional(),
+        stock: number().optional(),
+        item_weight: string().optional(),
+        shelfNumber: number().optional(),
+        state: zodEnum([ProductState.AVAILABLE, ProductState.OUT, ProductState.LOW]).optional(),
+    })
+});
+
 export type CreateProductInput = TypeOf<typeof createProductSchema>['body']
+export type UpdateProductInput = TypeOf<typeof updateProductSchema>["body"];

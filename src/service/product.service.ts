@@ -161,4 +161,25 @@ export async function getProductStateCounts() {
   } catch (error) {
     throw error;
   }
+}
+
+export async function updateProduct(productId: string, input: Partial<Product>) {
+  try {
+    // Convert category and subCategory names to IDs if present
+    if (input.categoryId) {
+      const category = await CategoryModel.findOne({ name: { $regex: input.categoryId, $options: "i" } }).exec();
+      if (!category) throw new CustomError("Category not found", 404);
+      input.categoryId = category._id.toString();
+    }
+    if (input.subCategoryId) {
+      const subCategory = await CategoryModel.findOne({ name: { $regex: input.subCategoryId, $options: "i" } }).exec();
+      if (!subCategory) throw new CustomError("Sub category not found", 404);
+      input.subCategoryId = subCategory._id.toString();
+    }
+    const product = await ProductModel.findByIdAndUpdate(productId, input, { new: true });
+    if (!product) throw new CustomError("Product not found", 404);
+    return product;
+  } catch (error) {
+    throw error;
+  }
 } 

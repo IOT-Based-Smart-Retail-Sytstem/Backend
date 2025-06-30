@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { createProduct, getAllProducts, getProductById, getProductsByCategory, getProductsBySubCategory, searchForProduct, getProductStateCounts } from "../service/product.service";
+import { createProduct, getAllProducts, getProductById, getProductsByCategory, getProductsBySubCategory, searchForProduct, getProductStateCounts, updateProduct } from "../service/product.service";
+import { UpdateProductInput } from "../schema/user/product.schema";
 
 export async function createProductHandler(req: Request, res: Response, next: NextFunction) {
     const body = req.body;
@@ -99,6 +100,21 @@ export async function getProductStateCountsHandler(req: Request, res: Response) 
             success: false,
             message: error instanceof Error ? error.message : 'Internal server error'
         });
+    }
+}
+
+export async function updateProductHandler(req: Request<{ id: string }, {}, UpdateProductInput>, res: Response, next: NextFunction) {
+    const productId = req.params.id;
+    const body = req.body;
+    try {
+        const product = await updateProduct(productId, body);
+        res.status(200).json({
+            success: true,
+            message: "Product updated successfully",
+            data: product
+        });
+    } catch (e) {
+        next(e);
     }
 }
 

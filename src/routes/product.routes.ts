@@ -1,6 +1,6 @@
 import express from 'express';
-import { createProductHandler, getAllProductsHandler, getProductHandler, getProductsByCategoryHandler, getProductsBySubCategoryHandler, searchForProductHandler, getProductStateCountsHandler } from '../controllers/product.controller';
-import { createProductSchema } from '../schema/user/product.schema';
+import { createProductHandler, getAllProductsHandler, getProductHandler, getProductsByCategoryHandler, getProductsBySubCategoryHandler, searchForProductHandler, getProductStateCountsHandler, updateProductHandler } from '../controllers/product.controller';
+import { createProductSchema, updateProductSchema } from '../schema/user/product.schema';
 import validateResource from '../middlware/validateResource';
 
 const router = express.Router();
@@ -39,6 +39,12 @@ router.get(
 router.get(
     "/api/product/search/:search",
     searchForProductHandler
+);
+
+router.put(
+    "/api/product/:id",
+    validateResource(updateProductSchema),
+    updateProductHandler
 );
 
 export default router;
