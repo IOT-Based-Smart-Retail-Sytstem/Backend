@@ -12,22 +12,19 @@ import cors from 'cors'
 import http from 'http';
 import { Server } from 'socket.io';
 import { SocketService } from './service/socket/cart.socket.service';
-
-import { ShelfFirebaseService } from './service/firebase/shelf.firebase.service';
 import { ShelfSocketService } from './service/socket/shelf.socket.service';
 
 const app = express();
 const server = http.createServer(app);
 
 // Create a single Socket.IO server instance
-const io = new Server(server, {
+export const io = new Server(server, {
     cors: {
         origin: "*",
         methods: ["GET", "POST", "PUT"]
     }
 });
 
-new ShelfFirebaseService();
 
 try {
     // Create separate namespaces for each service
@@ -37,7 +34,7 @@ try {
     new ShelfSocketService(shelfNamespace);
     log.info('ShelfSocketService started successfully');
     
-    let socketService = new SocketService(cartNamespace);
+    new SocketService(cartNamespace);
     log.info('SocketService started successfully');
 } catch (error) {
     log.error(`Failed to initialize Socket services: ${error instanceof Error ? error.message : String(error)}`);
@@ -46,7 +43,17 @@ try {
 
 // Configure cors
 app.use(cors());
-app.use(express.json());
+
+app.use((req, res, next) => {
+    if (req.originalUrl === '/api/payment/webhook') {
+      next(); // Skip JSON parsing for webhook
+    } else {
+      express.json()(req, res, next); // Apply JSON parsing for other routes
+    }
+  });
+
+// General middleware for all other routes
+// app.use(express.json());
 app.use(deserializeUser);
 app.use(cookieParser());
 app.use(router);

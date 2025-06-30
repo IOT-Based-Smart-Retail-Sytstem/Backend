@@ -172,6 +172,7 @@ export async function clearCartById(cartId: string) {
     cart.items = [];
     cart.totalPrice = 0;
     cart.isActive = false;
+    cart.user = null;
     
     await cart.save();
     

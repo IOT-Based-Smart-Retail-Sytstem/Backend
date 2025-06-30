@@ -1,55 +1,16 @@
 import { Request, Response } from "express";
 import { 
-  createCheckoutSession, 
   handleWebhookEvent, 
-  getStripePublicKey,
-  verifyWebhookSignature 
+  getStripePublicKey, 
+  verifyWebhookSignature
 } from "../service/payment.service";
 import { CustomError } from "../utils/custom.error";
 import { Code, Status } from "../utils/httpStatus";
+import Stripe from 'stripe';
 
-export async function createCheckoutSessionHandler(
-  req: Request,
-  res: Response
-) {
-  try {
-    const { successUrl, cancelUrl } = req.body;
-    const userId = res.locals.user?._id || req.body.userId; // Get from auth middleware or body
-
-    if (!userId) {
-      return res.status(Code.Unauthorized).json({
-        status: Status.FAIL,
-        message: "User authentication required"
-      });
-    }
-
-    if (!successUrl || !cancelUrl) {
-      return res.status(Code.BadRequest).json({
-        status: Status.FAIL,
-        message: "Success URL and Cancel URL are required"
-      });
-    }
-
-    const result = await createCheckoutSession(userId, successUrl, cancelUrl);
-
-    return res.status(Code.OK).json({
-      status: Status.SUCCESS,
-      data: result
-    });
-  } catch (error) {
-    if (error instanceof CustomError) {
-      return res.status(error.statusCode).json({
-        status: Status.FAIL,
-        message: error.message
-      });
-    }
-
-    return res.status(Code.InternalServerError).json({
-      status: Status.ERROR,
-      message: "Failed to create checkout session"
-    });
-  }
-}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+  apiVersion: '2025-05-28.basil',
+});
 
 export async function handleWebhookHandler(
   req: Request,
@@ -59,6 +20,15 @@ export async function handleWebhookHandler(
     const signature = req.headers['stripe-signature'] as string;
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
+    console.log('🔍 Webhook Debug:');
+    console.log('📝 Signature received:', signature);
+    console.log('🔐 Webhook secret loaded:', webhookSecret ? 'YES' : 'NO');
+    console.log('🔑 Secret value:', webhookSecret?.substring(0, 20) + '...');
+    console.log('📦 Body type:', typeof req.body);
+    console.log('📦 Body length:', req.body?.length);
+    console.log('📦 Is Buffer:', req.body instanceof Buffer);
+    console.log('📦 Body content (first 100 chars):', req.body?.toString().substring(0, 100));
+
     if (!signature || !webhookSecret) {
       return res.status(Code.BadRequest).json({
         status: Status.FAIL,
@@ -66,9 +36,9 @@ export async function handleWebhookHandler(
       });
     }
 
-    // Verify webhook signature
+    // Verify webhook signature using raw body (Buffer)
     const event = verifyWebhookSignature(
-      JSON.stringify(req.body),
+      req.body,
       signature,
       webhookSecret
     );
@@ -108,7 +78,7 @@ export async function getStripeConfigHandler(
       status: Status.SUCCESS,
       data: {
         publicKey,
-        currency: 'usd'
+        currency: 'egp'
       }
     });
   } catch (error) {
@@ -117,4 +87,40 @@ export async function getStripeConfigHandler(
       message: "Failed to get Stripe configuration"
     });
   }
-} 
+}
+
+export async function createPaymentIntentHandler(req: Request, res: Response) {
+  try {
+    const { amount, userId, cartId, totalAmount, socketId } = req.body;
+    if (!amount || !userId || !cartId || !totalAmount || !socketId) {
+      return res.status(Code.BadRequest).json({
+        status: Status.FAIL,
+        message: 'Missing required payment information',
+      });
+    }
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount,
+      currency: 'egp', // or use your config
+      metadata: {
+        userId,
+        cartId,
+        totalAmount: String(totalAmount),
+        socketId,
+      },
+    });
+
+    return res.status(Code.OK).json({
+      status: Status.SUCCESS,
+      data: {
+        clientSecret: paymentIntent.client_secret,
+      },
+    });
+  } catch (error) {
+    console.error('Error creating payment intent:', error);
+    return res.status(Code.InternalServerError).json({
+      status: Status.ERROR,
+      message: 'Failed to create payment intent',
+    });
+  }
+}

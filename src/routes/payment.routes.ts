@@ -1,17 +1,11 @@
 import express from 'express';
 import { 
-  createCheckoutSessionHandler, 
   handleWebhookHandler, 
-  getStripeConfigHandler 
+  getStripeConfigHandler,
+  createPaymentIntentHandler
 } from '../controllers/payment.controller';
 
 const router = express.Router();
-
-// Create checkout session
-router.post(
-    "/api/payment/checkout",
-    createCheckoutSessionHandler
-);
 
 // Stripe webhook endpoint (no auth required)
 router.post(
@@ -24,6 +18,12 @@ router.post(
 router.get(
     "/api/payment/config",
     getStripeConfigHandler
+);
+
+router.post(
+  '/api/payment/create-payment-intent',
+  express.json(), // Parse JSON body for this route
+  createPaymentIntentHandler
 );
 
 export default router; 
