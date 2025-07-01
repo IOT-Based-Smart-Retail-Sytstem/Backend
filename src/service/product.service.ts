@@ -182,4 +182,8 @@ export async function updateProduct(productId: string, input: Partial<Product>) 
   } catch (error) {
     throw error;
   }
+}
+
+export async function fetchAllProducts() {
+  return await ProductModel.find({});
 } 
