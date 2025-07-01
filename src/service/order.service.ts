@@ -40,14 +40,11 @@ export async function getOrderById(orderId: string) {
     .populate('user');
 }
 
-export async function getOrdersByDateRange(startDate: Date, endDate: Date) {
-  return await OrderModel.find({
-    createdAt: {
-      $gte: startDate,
-      $lte: endDate
-    }
-  })
-  .populate('items.product')
-  .populate('user')
-  .sort({ createdAt: -1 });
+export async function deleteOrderById(orderId: string) {
+  return await OrderModel.findByIdAndDelete(orderId);
+}
+
+export async function updateOrderById(orderId: string, order: any) {
+  console.log("order", order)
+  return await OrderModel.findByIdAndUpdate(orderId, order, { new: true });
 }
