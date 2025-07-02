@@ -1,6 +1,7 @@
 import express from 'express';
-import { createProductHandler, getAllProductsHandler, getProductHandler, getProductsByCategoryHandler, getProductsBySubCategoryHandler, searchForProductHandler, getProductStateCountsHandler, updateProductHandler, deleteProductHandler, restockProductHandler } from '../controllers/product.controller';
+import { createProductHandler, getAllProductsHandler, getProductHandler, getProductsByCategoryHandler, getProductsBySubCategoryHandler, searchForProductHandler, getProductStateCountsHandler, updateProductHandler, getProductByBarcodeHandler , deleteProductHandler, restockProductHandler } from '../controllers/product.controller';
 import { createProductSchema, updateProductSchema } from '../schema/user/product.schema';
+import { getRecommendationsHandler } from '../controllers/recommendation.controller';
 import validateResource from '../middlware/validateResource';
 
 const router = express.Router();
@@ -56,5 +57,11 @@ router.delete(
     "/api/product/:id",
     deleteProductHandler
 );
+router.get(
+    "/api/product/barcode/:barcode",
+    getProductByBarcodeHandler
+);
+
+router.get('/api/products/:id/recommendations', getRecommendationsHandler);
 
 export default router;

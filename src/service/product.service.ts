@@ -206,4 +206,7 @@ export async function restockProduct(productId: string, newStock: number) {
   } catch (error) {
     throw error;
   }
-} 
+}
+export async function fetchAllProducts() {
+  return await ProductModel.find({});
+}

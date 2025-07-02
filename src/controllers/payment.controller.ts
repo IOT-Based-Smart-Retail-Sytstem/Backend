@@ -78,7 +78,7 @@ export async function getStripeConfigHandler(
       status: Status.SUCCESS,
       data: {
         publicKey,
-        currency: 'egp'
+        currency: 'usd'
       }
     });
   } catch (error) {
@@ -91,8 +91,8 @@ export async function getStripeConfigHandler(
 
 export async function createPaymentIntentHandler(req: Request, res: Response) {
   try {
-    const { amount, userId, cartId, totalAmount, socketId } = req.body;
-    if (!amount || !userId || !cartId || !totalAmount || !socketId) {
+    const { amount, userId, cartId, socketId } = req.body;
+    if (!amount || !userId || !cartId || !socketId) {
       return res.status(Code.BadRequest).json({
         status: Status.FAIL,
         message: 'Missing required payment information',
@@ -101,11 +101,10 @@ export async function createPaymentIntentHandler(req: Request, res: Response) {
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
-      currency: 'egp', // or use your config
+      currency: 'usd',
       metadata: {
         userId,
         cartId,
-        totalAmount: String(totalAmount),
         socketId,
       },
     });

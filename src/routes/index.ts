@@ -7,7 +7,7 @@ import cart from './cart.routes';
 import category from './category.routes';
 import wishlist from './wishlist.routes';
 import payment from './payment.routes';
-
+import order from './order.routes';
 const router  = express.Router()
 
 router.get('/healthcheck' , (_, res) => {
@@ -22,5 +22,6 @@ router.use(cart);
 router.use(category);
 router.use(wishlist);
 router.use(payment);
+router.use(order);
 
 export default router ;
