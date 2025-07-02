@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { createProduct, getAllProducts, getProductById, getProductsByCategory, getProductsBySubCategory, searchForProduct, getProductStateCounts, updateProduct } from "../service/product.service";
+import { createProduct, getAllProducts, getProductById, getProductsByCategory, getProductsBySubCategory, searchForProduct, getProductStateCounts, updateProduct, getProductByBarcode } from "../service/product.service";
 import { UpdateProductInput } from "../schema/user/product.schema";
 
 export async function createProductHandler(req: Request, res: Response, next: NextFunction) {
@@ -100,6 +100,20 @@ export async function getProductStateCountsHandler(req: Request, res: Response) 
             success: false,
             message: error instanceof Error ? error.message : 'Internal server error'
         });
+    }
+}
+
+export async function getProductByBarcodeHandler(req: Request, res: Response, next: NextFunction) {
+    const barcode = req.params.barcode;
+    try {
+        const product = await getProductByBarcode(barcode);
+        res.status(200).json({
+            success: true,
+            message: "Product fetched successfully",
+            data: product
+        })
+    } catch (e: any) {
+        next(e);
     }
 }
 
