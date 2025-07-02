@@ -1,5 +1,5 @@
 import express from 'express';
-import { createProductHandler, getAllProductsHandler, getProductHandler, getProductsByCategoryHandler, getProductsBySubCategoryHandler, searchForProductHandler, getProductStateCountsHandler, updateProductHandler } from '../controllers/product.controller';
+import { createProductHandler, getAllProductsHandler, getProductHandler, getProductsByCategoryHandler, getProductsBySubCategoryHandler, searchForProductHandler, getProductStateCountsHandler, updateProductHandler, getProductByBarcodeHandler } from '../controllers/product.controller';
 import { createProductSchema, updateProductSchema } from '../schema/user/product.schema';
 import { getRecommendationsHandler } from '../controllers/recommendation.controller';
 import validateResource from '../middlware/validateResource';
@@ -46,6 +46,11 @@ router.put(
     "/api/product/:id",
     validateResource(updateProductSchema),
     updateProductHandler
+);
+
+router.get(
+    "/api/product/barcode/:barcode",
+    getProductByBarcodeHandler
 );
 
 router.get('/api/products/:id/recommendations', getRecommendationsHandler);
