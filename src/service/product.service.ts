@@ -182,4 +182,28 @@ export async function updateProduct(productId: string, input: Partial<Product>) 
   } catch (error) {
     throw error;
   }
+}
+
+export async function deleteProductById(productId: string) {
+  try {
+    const product = await ProductModel.findByIdAndDelete(productId).exec();
+    if (!product) throw new CustomError("Product not found", 404);
+    return product;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function restockProduct(productId: string, newStock: number) {
+  try {
+    const product = await ProductModel.findByIdAndUpdate(
+      productId,
+      { stock: newStock },
+      { new: true }
+    ).exec();
+    if (!product) throw new CustomError("Product not found", 404);
+    return product;
+  } catch (error) {
+    throw error;
+  }
 } 

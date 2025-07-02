@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import { Request, Response } from "express";
 import { CreateUserInput, ForgotPasswordInput, ResetPasswordInput } from "../schema/user/user.schema";
-import { createUser, findUserByEmail, findUserById } from "../service/user.service";
+import { createUser, findUserByEmail, findUserById, updateUserById, deleteUserById } from "../service/user.service";
 import sendEmail from "../utils/mailer";
 import log from "../utils/logger";
 import { nanoid } from "nanoid";
@@ -333,5 +333,48 @@ export async function resetPasswordHandler(
 
 export async function getCurrentUserHandler(req: Request, res: Response) {
   res.status(Code.OK).json({ status: Status.SUCCESS, data: { user: res.locals.user } });
+}
+
+// Get user by ID
+export async function getUserByIdHandler(req: Request, res: Response) {
+  try {
+    const userId = req.params.id;
+    const user = await findUserById(userId);
+    if (!user) {
+      return res.status(Code.NotFound).json({ status: Status.FAIL, message: "User not found" });
+    }
+    return res.status(Code.OK).json({ status: Status.SUCCESS, data: user });
+  } catch (error: any) {
+    return res.status(Code.InternalServerError).json({ status: Status.ERROR, message: error.message });
+  }
+}
+
+// Update user by ID
+export async function updateUserByIdHandler(req: Request, res: Response) {
+  try {
+    const userId = req.params.id;
+    const update = req.body;
+    const user = await updateUserById(userId, update);
+    if (!user) {
+      return res.status(Code.NotFound).json({ status: Status.FAIL, message: "User not found" });
+    }
+    return res.status(Code.OK).json({ status: Status.SUCCESS, data: user });
+  } catch (error: any) {
+    return res.status(Code.InternalServerError).json({ status: Status.ERROR, message: error.message });
+  }
+}
+
+// Delete user by ID
+export async function deleteUserByIdHandler(req: Request, res: Response) {
+  try {
+    const userId = req.params.id;
+    const user = await deleteUserById(userId);
+    if (!user) {
+      return res.status(Code.NotFound).json({ status: Status.FAIL, message: "User not found" });
+    }
+    return res.status(Code.OK).json({ status: Status.SUCCESS, message: "User deleted successfully" });
+  } catch (error: any) {
+    return res.status(Code.InternalServerError).json({ status: Status.ERROR, message: error.message });
+  }
 }
   

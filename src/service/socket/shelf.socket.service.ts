@@ -17,8 +17,19 @@ export class ShelfSocketService {
     }
 
     private setupSocketHandlers() {
-        this.io.on('connection', (socket: Socket) => {
+        this.io.on('connection', async (socket: Socket) => {
             console.log('Shelf client connected:', socket.id);
+
+            // Emit product-states-update immediately on connection
+            try {
+                const stateCounts = await getProductStateCounts();
+                socket.emit('product-states-update', {
+                    success: true,
+                    stateCounts: stateCounts
+                });
+            } catch (error) {
+                this.handleError(socket, error, 'product-states-update');
+            }
 
             socket.on('disconnect', () => {
                 console.log('Shelf client disconnected:', socket.id);

@@ -16,3 +16,11 @@ export function findUserByEmail(email: string) {
   if (!user) throw new CustomError("User not found", 404);
   return user;
 }
+
+export function updateUserById(id: string, update: Partial<User>) {
+  return UserModel.findByIdAndUpdate(id, update, { new: true });
+}
+
+export function deleteUserById(id: string) {
+  return UserModel.findByIdAndDelete(id);
+}

@@ -1,7 +1,7 @@
 import express from 'express' ;
 import validateResource from '../middlware/validateResource';
 import { createUserSchema, forgotPasswordSchema, verifyUserSchema } from '../schema/user/user.schema';
-import { createUserHandler, forgotPasswordHandler, getCurrentUserHandler, resendVerificationCode, resetPasswordHandler, verifyResetCode, verifyUserHandler } from '../controllers/user.controller';
+import { createUserHandler, forgotPasswordHandler, getCurrentUserHandler, resendVerificationCode, resetPasswordHandler, verifyResetCode, verifyUserHandler, getUserByIdHandler, updateUserByIdHandler, deleteUserByIdHandler } from '../controllers/user.controller';
 import requireUser from '../middlware/requireUser';
 import { requireRole } from "../middlware/requireRole";
 
@@ -46,6 +46,27 @@ router.get(
     requireUser,    
     requireRole(['admin']),
     getCurrentUserHandler
+);
+
+// Get user by ID
+router.get(
+  "/api/users/:id",
+  requireUser,
+  getUserByIdHandler
+);
+
+// Update user by ID
+router.put(
+  "/api/users/:id",
+  requireUser,
+  updateUserByIdHandler
+);
+
+// Delete user by ID
+router.delete(
+  "/api/users/:id",
+  requireUser,
+  deleteUserByIdHandler
 );
 
 export default router 

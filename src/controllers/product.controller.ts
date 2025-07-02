@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { createProduct, getAllProducts, getProductById, getProductsByCategory, getProductsBySubCategory, searchForProduct, getProductStateCounts, updateProduct } from "../service/product.service";
+import { createProduct, getAllProducts, getProductById, getProductsByCategory, getProductsBySubCategory, searchForProduct, getProductStateCounts, updateProduct, deleteProductById, restockProduct } from "../service/product.service";
 import { UpdateProductInput } from "../schema/user/product.schema";
 
 export async function createProductHandler(req: Request, res: Response, next: NextFunction) {
@@ -114,6 +114,38 @@ export async function updateProductHandler(req: Request<{ id: string }, {}, Upda
             data: product
         });
     } catch (e) {
+        next(e);
+    }
+}
+
+export async function deleteProductHandler(req: Request, res: Response, next: NextFunction) {
+    const productId = req.params.id;
+    try {
+        const product = await deleteProductById(productId);
+        res.status(200).json({
+            success: true,
+            message: "Product deleted successfully",
+            data: product
+        });
+    } catch (e: any) {
+        next(e);
+    }
+}
+
+export async function restockProductHandler(req: Request, res: Response, next: NextFunction) {
+    const productId = req.params.id;
+    const { newStock } = req.body;
+    try {
+        if (typeof newStock !== 'number' || newStock < 0) {
+            return res.status(400).json({ success: false, message: 'Invalid new stock value' });
+        }
+        const product = await restockProduct(productId, newStock);
+        res.status(200).json({
+            success: true,
+            message: "Product restocked successfully",
+            data: product
+        });
+    } catch (e: any) {
         next(e);
     }
 }
