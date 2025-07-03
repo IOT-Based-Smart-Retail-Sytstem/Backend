@@ -1,14 +1,14 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { getProductById, fetchAllProducts } from './product.service';
+import { getProductById, getAllProducts } from './product.service';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 export async function getProductRecommendations(currentProductId: string) {
   const currentProduct = await getProductById(currentProductId);
-  const allProducts = await fetchAllProducts();
+  const allProducts = await getAllProducts({});
 
   // Remove the current product from the list
-  const otherProducts = allProducts.filter(p => p._id.toString() !== currentProductId);
+  const otherProducts = allProducts.products.filter(p => p._id.toString() !== currentProductId);
 
   // Build a prompt
   const prompt = `

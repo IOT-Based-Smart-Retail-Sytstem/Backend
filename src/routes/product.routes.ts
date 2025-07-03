@@ -1,5 +1,5 @@
 import express from 'express';
-import { createProductHandler, getAllProductsHandler, getProductHandler, getProductsByCategoryHandler, getProductsBySubCategoryHandler, searchForProductHandler, getProductStateCountsHandler, updateProductHandler, getProductByBarcodeHandler , deleteProductHandler, restockProductHandler } from '../controllers/product.controller';
+import { createProductHandler, getAllProductsHandler, getProductHandler, getProductsByCategoryHandler, getProductsBySubCategoryHandler, searchForProductHandler, getProductStateCountsHandler, updateProductHandler, getProductByBarcodeHandler , deleteProductHandler } from '../controllers/product.controller';
 import { createProductSchema, updateProductSchema } from '../schema/user/product.schema';
 import { getRecommendationsHandler } from '../controllers/recommendation.controller';
 import validateResource from '../middlware/validateResource';
@@ -48,10 +48,10 @@ router.put(
     updateProductHandler
 );
 
-//router.put(
-//    "/api/product/:id/restock",
-//    restockProductHandler
-//);
+router.put(
+    "/api/product/:id/restock",
+    updateProductHandler
+);
 
 router.delete(
     "/api/product/:id",

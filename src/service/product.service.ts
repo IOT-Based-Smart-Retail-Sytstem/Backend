@@ -1,5 +1,4 @@
 import ProductModel, {Product, ProductState} from "../models/product.model";
-import { Request } from "express";
 import { CustomError } from "../utils/custom.error";
 import CategoryModel from "../models/category.model";
 
@@ -36,20 +35,25 @@ export async function createProduct(input: Partial<Product>) {
   }
 }
 
-export async function getAllProducts(req: Request) {
+export async function getAllProducts(filters: { page?: number, limit?: number, [key: string]: any }) {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
-    const skip = (page - 1) * limit;
-    
-    const products = await ProductModel.find().skip(skip).limit(limit).exec();
-    
+    const { page, limit, ...mongoFilters } = filters;
+
+    let query = ProductModel.find(mongoFilters);
+
+    if (page && limit) {
+      const skip = (page - 1) * limit;
+      query = query.skip(skip).limit(limit);
+    }
+
+    const products = await query.exec();
+    console.log(products.length);
+
     // Fetch category and subcategory names for each product
     const productsWithCategories = await Promise.all(
       products.map(async (product) => {
         const category = await CategoryModel.findById(product.categoryId).exec();
         const subCategory = await CategoryModel.findById(product.subCategoryId).exec();
-        
         return {
           ...product.toObject(),
           categories: category?.name || 'Unknown Category',
@@ -57,8 +61,16 @@ export async function getAllProducts(req: Request) {
         };
       })
     );
-    
-    return productsWithCategories;
+
+    // Only count total if paginated (optional, for performance)
+    const total = await ProductModel.countDocuments(mongoFilters);
+
+    return {
+      products: productsWithCategories,
+      total,
+      page: page || 1,
+      limit: limit || products.length // If not paginated, limit is all products
+    };
   } catch (error) {
     throw error;
   }
@@ -192,21 +204,4 @@ export async function deleteProductById(productId: string) {
   } catch (error) {
     throw error;
   }
-}
-
-export async function restockProduct(productId: string, newStock: number) {
-  try {
-    const product = await ProductModel.findByIdAndUpdate(
-      productId,
-      { stock: newStock },
-      { new: true }
-    ).exec();
-    if (!product) throw new CustomError("Product not found", 404);
-    return product;
-  } catch (error) {
-    throw error;
-  }
-}
-export async function fetchAllProducts() {
-  return await ProductModel.find({});
 }
