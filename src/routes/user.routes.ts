@@ -44,7 +44,7 @@ resendVerificationCode);
 router.get(
     "/api/users/me", 
     requireUser,    
-    requireRole(['admin']),
+    requireRole(['admin', 'user']),
     getCurrentUserHandler
 );
 

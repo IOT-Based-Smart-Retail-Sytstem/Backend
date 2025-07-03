@@ -48,10 +48,10 @@ router.put(
     updateProductHandler
 );
 
-router.put(
-    "/api/product/:id/restock",
-    restockProductHandler
-);
+//router.put(
+//    "/api/product/:id/restock",
+//    restockProductHandler
+//);
 
 router.delete(
     "/api/product/:id",
