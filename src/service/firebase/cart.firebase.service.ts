@@ -3,7 +3,7 @@ import { getDatabase, ref, onValue, set, DataSnapshot, get, remove, off } from '
 import { Namespace } from 'socket.io';
 import * as dotenv from 'dotenv';
 import { connectUserToCart, getUserCart, updateCart, getCartByQrCode } from '../cart.service';
-import { getProductByBarcode, getProductStateCounts } from '../product.service';
+import { getProductByBarcode } from '../product.service';
 
 dotenv.config();
 
@@ -22,7 +22,6 @@ export class CartFirebaseService {
     
     // Store the current listener reference to properly clean it up
     private currentListener: (() => void) | null = null;
-    private currentUserId: string | null = null;
 
     constructor(io: Namespace) {
         console.log('CartFirebaseService initialized');
@@ -84,9 +83,6 @@ export class CartFirebaseService {
             const cart = await connectUserToCart(userId, cartQrCode);
             console.log("cart", cart);
 
-            // Store current user ID
-            this.currentUserId = userId;
-
             // Set scanning flag in Firebase
             await this.updateNode(`start_scanning`, true);
 
@@ -117,8 +113,6 @@ export class CartFirebaseService {
                     const updatedCart = await updateCart(userId, product, products.count || 1);
                     console.log("updatedCart in startCartScanning", updatedCart);
 
-                    // Get current product state counts (without updating stock)
-                    const stateCounts = await getProductStateCounts();
 
                     // Send products update event
                     this.io.to(userId).emit('products-update', {
@@ -132,11 +126,6 @@ export class CartFirebaseService {
                         }
                     });
 
-                    // Send separate state counts event
-                    this.io.to(userId).emit('product-states-update', {
-                        success: true,
-                        stateCounts: stateCounts
-                    });
                 } catch (error) {
                     console.error('Error processing scanned product:', error);
                     this.io.to(userId).emit('error', {
@@ -163,9 +152,7 @@ export class CartFirebaseService {
             this.cleanupListener();
             
             // Reset state
-            this.lastEventKey = null;
-            this.currentUserId = null;
-            
+            this.lastEventKey = null;            
             // Update Firebase
             await this.updateNode(`start_scanning`, false);
             
@@ -201,13 +188,4 @@ export class CartFirebaseService {
         }
     }
 
-    // Method to check if scanning is active
-    public isScanning(): boolean {
-        return this.currentListener !== null;
-    }
-
-    // Get current user ID if scanning
-    public getCurrentUserId(): string | null {
-        return this.currentUserId;
-    }
 }

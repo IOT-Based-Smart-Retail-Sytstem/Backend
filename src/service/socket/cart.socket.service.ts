@@ -141,7 +141,7 @@ export class SocketService {
 
                     // Stop scanning but keep cart data
                     await this.cleanupSocketScanning(socket.id);
-                    
+
                     socket.emit('scanning-stopped', {
                         success: true,
                         message: 'Cart scanning stopped successfully'
@@ -218,10 +218,15 @@ export class SocketService {
             // Handle disconnection
             socket.on('disconnect', async () => {
                 try {
+                    const socketData = this.socketDataMap.get(socket.id);
+                    if (!socketData) {
+                        throw new CustomError('No cart data found for this socket', Code.BadRequest);
+                    }
+
                     console.log('Client disconnected:', socket.id);
                     
-                    // Clean up scanning (but don't clear cart data)
-                    await this.cleanupSocketScanning(socket.id);
+                    // Clean up for this socket
+                    await this.cartFirebaseService.clearCart(socketData.cartQrCode);
                     
                     // Remove from map
                     this.socketDataMap.delete(socket.id);
@@ -237,25 +242,6 @@ export class SocketService {
                 this.handleError(socket, error, 'socket-error');
             });
         });
-    }
-
-    // Utility method to get active scanning sessions
-    public getActiveScanningCount(): number {
-        let count = 0;
-        for (const [_, data] of this.socketDataMap) {
-            if (data.isScanning) count++;
-        }
-        return count;
-    }
-
-    // Utility method to check if a user is scanning
-    public isUserScanning(userId: string): boolean {
-        for (const [_, data] of this.socketDataMap) {
-            if (data.userId === userId && data.isScanning) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public getIO(): Namespace {
