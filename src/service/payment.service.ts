@@ -2,6 +2,7 @@ import Stripe from 'stripe';
 import { CustomError } from '../utils/custom.error';
 import { Code } from '../utils/httpStatus';
 import { getUserCart, clearCartById } from './cart.service';
+import { getProductById, updateProduct } from './product.service';
 import { createOrder } from './order.service';
 import { io } from '../app';
 
@@ -62,6 +63,10 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
     io.to(socketId).emit('payment_success', { orderId: order._id });
     
     // TODO: update product stock quantity
+    for (const item of order.items) {
+      const product = await getProductById(item.product._id.toString());
+      await updateProduct(product._id.toString(), { stock: product.stock - item.quantity });
+    }
 
 
     console.log(`Order created successfully: ${order._id}`);
