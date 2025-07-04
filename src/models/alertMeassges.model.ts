@@ -20,7 +20,7 @@ export class AlertMeassge {
     @prop({ required: false, default: false })
     isRead: boolean;
 
-    @prop({ ref: () => User, required: true })
+    @prop({ ref: () => User, required: false })
     user: Ref<User> | null;
   
     @prop({ required: false, default: Date.now })
