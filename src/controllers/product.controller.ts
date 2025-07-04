@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { createProduct, getAllProducts, getProductById, getProductsByCategory, getProductsBySubCategory, searchForProduct, getProductStateCounts, updateProduct, getProductByBarcode ,  deleteProductById } from "../service/product.service";
 import { UpdateProductInput } from "../schema/user/product.schema";
+import { alertMessagesSocketService } from '../app';
 
 export async function createProductHandler(req: Request, res: Response, next: NextFunction) {
     const body = req.body;
@@ -122,7 +123,15 @@ export async function updateProductHandler(req: Request<{ id: string }, {}, Upda
     const productId = req.params.id;
     const body = req.body;
     try {
+        const oldProduct = await getProductById(productId);
         const product = await updateProduct(productId, body);
+        if (oldProduct && oldProduct.stock > 0 && product.stock === 0) {
+            const adminUserId = 'ADMIN_USER_ID';
+            await alertMessagesSocketService.sendInventoryAlert({
+                productTitle: product.title,
+                userId: adminUserId
+            });
+        }
         res.status(200).json({
             success: true,
             message: "Product updated successfully",

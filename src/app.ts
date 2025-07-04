@@ -13,6 +13,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import { SocketService } from './service/socket/cart.socket.service';
 import { ShelfSocketService } from './service/socket/shelf.socket.service';
+import { AlertMeassagesSocketService } from './service/socket/alertMeassages.socket.service';
 
 const app = express();
 const server = http.createServer(app);
@@ -25,17 +26,23 @@ export const io = new Server(server, {
     }
 });
 
+export let alertMessagesSocketService: AlertMeassagesSocketService;
 
 try {
     // Create separate namespaces for each service
     const cartNamespace = io.of('/cart');
     const shelfNamespace = io.of('/shelf');
+    const alertMessagesNamespace = io.of('/alert-messages');
     
     new ShelfSocketService(shelfNamespace);
     log.info('ShelfSocketService started successfully');
     
     new SocketService(cartNamespace);
     log.info('SocketService started successfully');
+
+    // Initialize alert messages socket service
+    alertMessagesSocketService = new AlertMeassagesSocketService(alertMessagesNamespace);
+    log.info('AlertMeassagesSocketService started successfully');
 } catch (error) {
     log.error(`Failed to initialize Socket services: ${error instanceof Error ? error.message : String(error)}`);
     process.exit(1);
