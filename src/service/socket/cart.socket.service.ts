@@ -219,19 +219,18 @@ export class SocketService {
             socket.on('disconnect', async () => {
                 try {
                     const socketData = this.socketDataMap.get(socket.id);
-                    if (!socketData) {
-                        throw new CustomError('No cart data found for this socket', Code.BadRequest);
+                    if (socketData) {
+                        console.log('Client disconnected:', socket.id);
+                        
+                        // Clean up for this socket
+                        await this.cartFirebaseService.clearCart(socketData.cartQrCode);
+                        
+                        // Remove from map
+                        this.socketDataMap.delete(socket.id);
+
+                        console.log(`Cleaned up socket ${socket.id}`);
                     }
 
-                    console.log('Client disconnected:', socket.id);
-                    
-                    // Clean up for this socket
-                    await this.cartFirebaseService.clearCart(socketData.cartQrCode);
-                    
-                    // Remove from map
-                    this.socketDataMap.delete(socket.id);
-                    
-                    console.log(`Cleaned up socket ${socket.id}`);
                 } catch (error) {
                     console.error('Error handling disconnect:', error);
                 }
