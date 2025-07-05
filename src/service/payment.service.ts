@@ -5,12 +5,12 @@ import { getUserCart, clearCartById } from './cart.service';
 import { getProductById, updateProduct } from './product.service';
 import { createOrder } from './order.service';
 import { io } from '../app';
+import { sendPaymentSuccessNotification, sendPaymentFailedNotification } from './notification-integration.service';
 
 // Initialize Stripe with your secret key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-05-28.basil',
 });
-
 
 export async function handleWebhookEvent(event: Stripe.Event) {
   try {
@@ -59,6 +59,9 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
     // Clear the cart after successful payment
     await clearCartById(cartId);
 
+    // Send payment success notification
+    await sendPaymentSuccessNotification(userId, order._id.toString());
+
     // send payment success event to socket
     io.to(socketId).emit('payment_success', { orderId: order._id });
     
@@ -67,7 +70,6 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
       const product = await getProductById(item.product._id.toString());
       await updateProduct(product._id.toString(), { stock: product.stock - item.quantity });
     }
-
 
     console.log(`Order created successfully: ${order._id}`);
     console.log(`Cart cleared successfully: ${cartId}`);
@@ -79,7 +81,23 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
 
 async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
   console.log(`Payment failed: ${paymentIntent.id}`);
-  // Add any additional logic for failed payments
+  try {
+    const { userId, orderId, socketId } = paymentIntent.metadata || {};
+
+    if (userId) {
+      // Send payment failed notification
+      await sendPaymentFailedNotification(userId, orderId.toString());
+
+      // send payment failed event to socket
+      io.to(socketId).emit('payment_failed', { orderId: orderId });
+    }
+
+    // Add any additional logic for failed payments
+    console.log(`Payment failed notification sent for user: ${userId}`);
+  } catch (error) {
+    console.error('Error handling payment intent failed:', error);
+    throw error;
+  }
 }
 
 // Get Stripe public key for client-side

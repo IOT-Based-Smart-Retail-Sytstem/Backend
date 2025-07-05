@@ -8,6 +8,7 @@ import category from './category.routes';
 import wishlist from './wishlist.routes';
 import payment from './payment.routes';
 import order from './order.routes';
+import notification from './notification.routes';
 const router  = express.Router()
 
 router.get('/healthcheck' , (_, res) => {
@@ -23,5 +24,6 @@ router.use(category);
 router.use(wishlist);
 router.use(payment);
 router.use(order);
+router.use('/api/notifications', notification);
 
 export default router ;

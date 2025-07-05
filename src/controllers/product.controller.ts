@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { createProduct, getAllProducts, getProductById, getProductsByCategory, getProductsBySubCategory, searchForProduct, getProductStateCounts, updateProduct, getProductByBarcode ,  deleteProductById } from "../service/product.service";
 import { UpdateProductInput } from "../schema/user/product.schema";
-import { alertMessagesSocketService } from '../app';
+import { sendInventoryAlert, sendLowStockAlert, sendRestockNotification } from '../service/notification-integration.service';
 
 export async function createProductHandler(req: Request, res: Response, next: NextFunction) {
     const body = req.body;
@@ -125,13 +125,24 @@ export async function updateProductHandler(req: Request<{ id: string }, {}, Upda
     try {
         const oldProduct = await getProductById(productId);
         const product = await updateProduct(productId, body);
+        
+        const adminUserId = 'ADMIN_USER_ID';
+        
+        // Check if stock reached 0 (out of stock)
         if (oldProduct && oldProduct.stock > 0 && product.stock === 0) {
-            const adminUserId = 'ADMIN_USER_ID';
-            await alertMessagesSocketService.sendInventoryAlert({
-                productTitle: product.title,
-                userId: adminUserId
-            });
+            await sendInventoryAlert(adminUserId, product.title);
         }
+        
+        // Check if stock is low (less than 10)
+        if (oldProduct && oldProduct.stock >= 10 && product.stock < 10 && product.stock > 0) {
+            await sendLowStockAlert(adminUserId, product.title, product.stock);
+        }
+        
+        // Check if product was restocked (stock increased)
+        if (oldProduct && oldProduct.stock < product.stock) {
+            await sendRestockNotification(adminUserId, product.title, product.stock);
+        }
+        
         res.status(200).json({
             success: true,
             message: "Product updated successfully",

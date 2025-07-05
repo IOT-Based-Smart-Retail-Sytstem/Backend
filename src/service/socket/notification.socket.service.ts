@@ -2,16 +2,13 @@ import { Socket, Namespace } from 'socket.io';
 import { CustomError } from '../../utils/custom.error';
 import { Code } from '../../utils/httpStatus';
 import { verifyJwt } from '../../utils/jwt';
-import { EventEmitter } from 'events';
-import * as alertService from '../alertMeassge.service';
+import * as notificationService from '../notification.service';
 
-export class AlertMeassagesSocketService {
+export class NotificationSocketService {
     private io: Namespace;
-    private eventEmitter: EventEmitter;
 
     constructor(io: Namespace) {
         this.io = io;
-        this.eventEmitter = new EventEmitter();
         this.io.use(this.authenticateSocket);
         this.setupSocketHandlers();
     }
@@ -52,45 +49,27 @@ export class AlertMeassagesSocketService {
         return userId;
     }
 
-    // Only creates the alert and emits an event
-    public async sendInventoryAlert({ productTitle, userId }: { productTitle: string, userId: string }) {
-        const alert = await alertService.createInventoryAlert({ productTitle, userId });
-        this.eventEmitter.emit('inventory-alert', { userId, alert });
-        return alert;
-    }
-
     private setupSocketHandlers() {
         this.io.on('connection', (socket: Socket) => {
             console.log('Notification client connected:', socket.id);
+            const userId = this.getUserIdFromSocket(socket);
 
-            // Listen for inventory-alert events and emit to the user
-            this.eventEmitter.on('inventory-alert', ({ userId, alert }) => {
-                this.io.to(userId).emit('Inventory-Alert', {
-                    title: alert.title,
-                    message: alert.message,
-                    time: 'new',
-                    createdAt: alert.createdAt
-                });
-            });
-
-            // Get all alerts with correct time labels
-            socket.on('get-alert-messages', async () => {
+            // Get all notifications
+            socket.on('get-notifications', async () => {
                 try {
-                    const userId = this.getUserIdFromSocket(socket);
-                    const alerts = await alertService.getUserAlertsWithTime(userId);
-                    socket.emit('alert-messages', alerts);
+                    const notifications = await notificationService.getUserNotifications(userId);
+                    socket.emit('notifications', notifications);
                 } catch (error) {
-                    this.handleError(socket, error, 'get-alert-messages');
+                    this.handleError(socket, error, 'get-notifications');
                 }
             });
 
             // Mark all as read
             socket.on('mark-all-as-read', async () => {
                 try {
-                    const userId = this.getUserIdFromSocket(socket);
-                    await alertService.markAllAsRead(userId);
-                    const alerts = await alertService.getUserAlertsWithTime(userId);
-                    socket.emit('notifications', alerts);
+                    await notificationService.markAllAsRead(userId);
+                    const notifications = await notificationService.getUserNotifications(userId);
+                    socket.emit('notifications', notifications);
                 } catch (error) {
                     this.handleError(socket, error, 'mark-all-as-read');
                 }
@@ -99,29 +78,33 @@ export class AlertMeassagesSocketService {
             // Clear all notifications
             socket.on('clear-all-notifications', async () => {
                 try {
-                    const userId = this.getUserIdFromSocket(socket);
-                    await alertService.clearAll(userId);
+                    await notificationService.clearAll(userId);
                     socket.emit('notifications', []);
                 } catch (error) {
                     this.handleError(socket, error, 'clear-all-notifications');
                 }
             });
 
-            // Clear a specific alert
-            socket.on('clear-alert', async (alertId: string) => {
+            // Clear a specific notification
+            socket.on('clear-notification', async (notificationId: string) => {
                 try {
-                    const userId = this.getUserIdFromSocket(socket);
-                    await alertService.clearAlert(userId, alertId);
-                    const alerts = await alertService.getUserAlertsWithTime(userId);
-                    socket.emit('notifications', alerts);
+                    await notificationService.clearNotification(userId, notificationId);
+                    socket.emit('notification-cleared', notificationId);
                 } catch (error) {
-                    this.handleError(socket, error, 'clear-alert');
+                    this.handleError(socket, error, 'clear-notification');
                 }
             });
         });
     }
 
-    public getIO(): Namespace {
-        return this.io;
+    // For emitting new notifications to a user
+    public async sendNotification(userId: string, notificationData: any) {
+        try {
+            const notification = await notificationService.createNotification(notificationData);
+            this.io.to(userId).emit('new-notification', notification);
+            return notification;
+        } catch (error) {
+            throw error;
+        }
     }
-}
+} 
