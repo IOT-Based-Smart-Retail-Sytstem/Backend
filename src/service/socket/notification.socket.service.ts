@@ -88,7 +88,7 @@ export class NotificationSocketService {
             // Clear a specific notification
             socket.on('clear-notification', async (notificationId: string) => {
                 try {
-                    await notificationService.clearNotification(userId, notificationId);
+                    await notificationService.clearNotification(notificationId);
                     socket.emit('notification-cleared', notificationId);
                 } catch (error) {
                     this.handleError(socket, error, 'clear-notification');
