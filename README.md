@@ -1,6 +1,6 @@
 # Scan-and-Go Retail Backend System
 
-[![DeepWiki](https://deepwiki.com/badge.svg?url=https%3A%2F%2Fdeepwiki.com%2FIOT-Based-Smart-Retail-Sytstem%2FBackend)](https://deepwiki.com/IOT-Based-Smart-Retail-Sytstem/Backend)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/IOT-Based-Smart-Retail-Sytstem/Backend)
 
 A modern backend system for a scan-and-go retail experience, built with Node.js, TypeScript, Socket.IO, Firebase, and MongoDB. This project supports real-time cart management, user authentication, and seamless integration with cloud services.
 
