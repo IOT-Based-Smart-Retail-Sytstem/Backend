@@ -2,6 +2,13 @@ import ProductModel, {Product, ProductState} from "../models/product.model";
 import { CustomError } from "../utils/custom.error";
 import CategoryModel from "../models/category.model";
 
+function calculateStockState(stock: number): ProductState {
+    if (stock === 0) return ProductState.OUT;
+    if (stock > 0 && stock < 50) return ProductState.LOW;
+    if (stock >= 50) return ProductState.AVAILABLE;
+    return ProductState.OUT;
+}
+
 export async function updateProductState(productId: string, state: string) {
     try {
         const product = await ProductModel.findByIdAndUpdate(
@@ -29,6 +36,10 @@ export async function createProduct(input: Partial<Product>) {
     const subCategory = await CategoryModel.findOne({name: {$regex: input.subCategoryId, $options: "i"}}).exec();
     if (!subCategory) throw new CustomError("Sub category not found", 404);
     input.subCategoryId = subCategory._id.toString();
+
+    if (typeof input.stock === 'number') {
+      input.stockState = calculateStockState(input.stock);
+    }
     return ProductModel.create(input);
   } catch (error) {
     throw error;
@@ -187,6 +198,9 @@ export async function updateProduct(productId: string, input: Partial<Product>) 
       const subCategory = await CategoryModel.findOne({ name: { $regex: input.subCategoryId, $options: "i" } }).exec();
       if (!subCategory) throw new CustomError("Sub category not found", 404);
       input.subCategoryId = subCategory._id.toString();
+    }
+    if (typeof input.stock === 'number') {
+      input.stockState = calculateStockState(input.stock);
     }
     const product = await ProductModel.findByIdAndUpdate(productId, input, { new: true });
     if (!product) throw new CustomError("Product not found", 404);

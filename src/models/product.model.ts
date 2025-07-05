@@ -54,6 +54,9 @@ export class Product {
     @prop({ required: true, enum: ProductState, default: ProductState.AVAILABLE })
     state: ProductState
 
+    @prop({ required: true, enum: ProductState, default: ProductState.AVAILABLE })
+    stockState: ProductState
+
     @prop({ required: false, default: Date.now })
     createdAt: Date
 
