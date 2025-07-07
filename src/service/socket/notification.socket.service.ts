@@ -69,7 +69,7 @@ export class NotificationSocketService {
                 try {
                     await notificationService.markAllAsRead(userId);
                     const notifications = await notificationService.getUserNotifications(userId);
-                    socket.emit('notifications', notifications);
+                    socket.emit('notifications-marked-read', notifications);
                 } catch (error) {
                     this.handleError(socket, error, 'mark-all-as-read');
                 }
@@ -79,7 +79,7 @@ export class NotificationSocketService {
             socket.on('clear-all-notifications', async () => {
                 try {
                     await notificationService.clearAll(userId);
-                    socket.emit('notifications', []);
+                    socket.emit('notifications-cleared');
                 } catch (error) {
                     this.handleError(socket, error, 'clear-all-notifications');
                 }
