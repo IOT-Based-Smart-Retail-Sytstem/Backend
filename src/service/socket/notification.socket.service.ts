@@ -54,6 +54,7 @@ export class NotificationSocketService {
         this.io.on('connection', (socket: Socket) => {
             console.log('Notification client connected:', socket.id);
             const userId = this.getUserIdFromSocket(socket);
+            socket.join(userId);
 
             // Get all notifications
             socket.on('get-notifications', async () => {
