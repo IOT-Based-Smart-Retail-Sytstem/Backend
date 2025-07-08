@@ -36,6 +36,22 @@ export async function createSubCategory(input: Partial<Category>, parentId: stri
 }
 
 /**
+ * Retrieves a category by its ID
+ * @param id - ID of the category to retrieve
+ * @returns Promise resolving to the category
+ * @throws CustomError if category is not found
+ */
+export async function getCategoryById(id: string) {
+    try {
+        const category = await CategoryModel.findById(id);
+        if (!category) throw new CustomError("Category not found", 404);
+        return category;
+    } catch (error) {
+        throw error;
+    }
+}
+
+/**
  * Retrieves all main categories (categories without parents)
  * @returns Promise resolving to an array of main categories
  * @throws CustomError if fetching categories fails

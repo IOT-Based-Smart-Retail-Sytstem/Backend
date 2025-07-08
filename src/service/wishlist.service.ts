@@ -22,7 +22,7 @@ export async function addToWishlist(userId: string, productId: string) {
             throw new CustomError("Product already in wishlist", 400);
         }
     }
-    wishlist.products.push(product);
+    wishlist.products.push(product._id);
     await wishlist.save();
 }
 

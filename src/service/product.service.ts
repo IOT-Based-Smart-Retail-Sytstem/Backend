@@ -1,7 +1,7 @@
 import ProductModel, {Product, ProductState} from "../models/product.model";
 import { CustomError } from "../utils/custom.error";
 import CategoryModel from "../models/category.model";
-
+import { getCategoryById } from "./category.service";
 function calculateStockState(stock: number): ProductState {
     if (stock === 0) return ProductState.OUT;
     if (stock > 0 && stock < 50) return ProductState.LOW;
@@ -91,7 +91,11 @@ export async function getProductById(productId: string) {
   try {
     const product = await ProductModel.findById(productId).exec();
     if (!product) throw new CustomError("Product not found", 404);
-    return product;
+    return {
+      ...product.toObject(),
+      category: await getCategoryById(product.categoryId),
+      subCategory: await getCategoryById(product.subCategoryId)
+    }
   } catch (error) {
     throw error;
   }
