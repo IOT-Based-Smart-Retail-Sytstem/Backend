@@ -3,6 +3,7 @@ import { CustomError } from '../../utils/custom.error';
 import { Code } from '../../utils/httpStatus';
 import { verifyJwt } from '../../utils/jwt';
 import * as notificationService from '../notification.service';
+import { Notification } from '../../models/notification.model';
 
 export class NotificationSocketService {
     private io: Namespace;
@@ -98,9 +99,8 @@ export class NotificationSocketService {
     }
 
     // For emitting new notifications to a user
-    public async sendNotification(userId: string, notificationData: any) {
+    public async sendNotification(userId: string, notification: Notification) {
         try {
-            const notification = await notificationService.createNotification(notificationData);
             this.io.to(userId).emit('new-notification', notification);
             return notification;
         } catch (error) {
