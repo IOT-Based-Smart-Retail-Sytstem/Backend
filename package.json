@@ -7,7 +7,11 @@
     "test": "jest --config jest.config.js",
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
     "start": "node ./dist/src/app.js",
-    "build": "tsc"
+    "build": "tsc",
+    "perf:test": "node performance-test.js",
+    "perf:monitor": "node -r dotenv/config src/utils/performance-monitor.js",
+    "test:connectivity": "node simple-test.js",
+    "test:socket": "node simple-socket-test.js"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +26,7 @@
     "@types/lodash": "^4.17.15",
     "@types/nodemailer": "^6.4.17",
     "@types/stripe": "^8.0.417",
+    "autocannon": "^7.15.0",
     "jest": "^29.7.0",
     "pino-pretty": "^13.0.0",
     "ts-jest": "^29.2.5",

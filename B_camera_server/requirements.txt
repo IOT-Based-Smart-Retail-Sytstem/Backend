@@ -1,0 +1,9 @@
+flask==2.3.3
+pillow==10.0.1
+ultralytics==8.0.196
+firebase-admin==6.2.0
+requests==2.31.0
+opencv-python==4.8.1.78
+numpy==1.24.3
+# torch==2.0.1  # Commented out to avoid conflicts
+# torchvision==0.15.2  # Commented out to avoid conflicts 

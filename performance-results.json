@@ -1,0 +1,22 @@
+{
+  "timestamp": "2025-07-06T13:01:48.754Z",
+  "serverUrl": "http://localhost:3000",
+  "api": {
+    "requestsPerSecond": 3138.5,
+    "latency": 2.74,
+    "throughput": 818982.4,
+    "successfulRequests": 0,
+    "totalRequests": 0
+  },
+  "socket": {
+    "eventsProcessed": 0,
+    "duration": 5.331,
+    "eventsPerSecond": 0,
+    "connectedClients": 0
+  },
+  "target": {
+    "apiRequestsPerMinute": 1000,
+    "socketEventsPerSecond": 500,
+    "imageProcessingPerMinute": 10
+  }
+}

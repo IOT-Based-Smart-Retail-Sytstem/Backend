@@ -1,0 +1,25 @@
+{
+  "timestamp": "2025-07-06 16:27:50",
+  "single_request": {
+    "success": true,
+    "response_time": 180.9098720550537,
+    "status_code": 200,
+    "response_size": 61887
+  },
+  "concurrent_requests": {
+    "total": 10,
+    "successful": 10,
+    "failed": 0,
+    "avg_response_time": 17.298269271850586
+  },
+  "throughput": {
+    "duration": 30.077722549438477,
+    "successful_requests": 237,
+    "failed_requests": 0,
+    "requests_per_minute": 472.775156982937,
+    "avg_response_time": 25.994563404517837
+  },
+  "target": {
+    "images_per_minute": 10
+  }
+}
