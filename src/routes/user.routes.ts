@@ -59,6 +59,7 @@ router.get(
 router.put(
   "/api/users/:id",
   requireUser,
+  requireRole(['admin']),
   updateUserByIdHandler
 );
 
@@ -66,6 +67,7 @@ router.put(
 router.delete(
   "/api/users/:id",
   requireUser,
+  requireRole(['admin']),
   deleteUserByIdHandler
 );
 
