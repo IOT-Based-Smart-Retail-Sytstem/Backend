@@ -14,7 +14,6 @@ import { Server } from 'socket.io';
 import { SocketService } from './service/socket/cart.socket.service';
 import { ShelfSocketService } from './service/socket/shelf.socket.service';
 import { NotificationSocketService } from './service/socket/notification.socket.service';
-import { TestSocketService } from './service/socket/test.socket.service';
 import { performanceMonitor, performanceMiddleware } from './utils/performance-monitor';
 
 const app = express();
@@ -47,9 +46,6 @@ try {
     notificationSocketService = new NotificationSocketService(notificationNamespace);
     log.info('NotificationSocketService started successfully');
 
-    // Initialize test socket service (no authentication required)
-    new TestSocketService(testNamespace);
-    log.info('TestSocketService started successfully');
 } catch (error) {
     log.error(`Failed to initialize Socket services: ${error instanceof Error ? error.message : String(error)}`);
     process.exit(1);
