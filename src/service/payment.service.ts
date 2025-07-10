@@ -63,7 +63,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
     await sendPaymentSuccessNotification(userId, order._id.toString());
 
     // send payment success event to socket
-    io.to(socketId).emit('payment_success', { orderId: order._id });
+    io.to(userId).emit('payment_success', { orderId: order._id });
     
     // TODO: update product stock quantity
     for (const item of order.items) {

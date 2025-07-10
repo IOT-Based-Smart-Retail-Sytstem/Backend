@@ -35,7 +35,6 @@ try {
     const cartNamespace = io.of('/cart');
     const shelfNamespace = io.of('/shelf');
     const notificationNamespace = io.of('/notifications');
-    const testNamespace = io.of('/test'); // For performance testing
     
     new ShelfSocketService(shelfNamespace);
     log.info('ShelfSocketService started successfully');
@@ -65,12 +64,12 @@ app.use(cors());
 //app.use(performanceMiddleware);
 
 app.use((req, res, next) => {
-    if (req.originalUrl === '/api/payment/webhook') {
-      next(); // Skip JSON parsing for webhook
-    } else {
-      express.json()(req, res, next); // Apply JSON parsing for other routes
-    }
-  });
+  if (req.originalUrl.startsWith('/api/payment/webhook')) {
+    next();
+  } else {
+    express.json()(req, res, next);
+  }
+});
 
 // General middleware for all other routes
 // app.use(express.json());
