@@ -91,8 +91,8 @@ export async function getStripeConfigHandler(
 
 export async function createPaymentIntentHandler(req: Request, res: Response) {
   try {
-    const { amount, userId, cartId, socketId } = req.body;
-    if (!amount || !userId || !cartId || !socketId) {
+    const { amount, userId, cartQrcode } = req.body;
+    if (!amount || !userId || !cartQrcode) {
       return res.status(Code.BadRequest).json({
         status: Status.FAIL,
         message: 'Missing required payment information',
@@ -104,8 +104,7 @@ export async function createPaymentIntentHandler(req: Request, res: Response) {
       currency: 'usd',
       metadata: {
         userId,
-        cartId,
-        socketId,
+        cartQrcode,
       },
     });
 

@@ -1,7 +1,7 @@
 import Stripe from 'stripe';
 import { CustomError } from '../utils/custom.error';
 import { Code } from '../utils/httpStatus';
-import { getUserCart, clearCartById } from './cart.service';
+import { getUserCart, clearCart } from './cart.service';
 import { getProductById, updateProduct } from './product.service';
 import { createOrder } from './order.service';
 import { io } from '../app';
@@ -35,9 +35,9 @@ export async function handleWebhookEvent(event: Stripe.Event) {
 async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent) {
   console.log(`Payment succeeded: ${paymentIntent.id}`);
   try {
-    const { userId, cartId, totalAmount, socketId } = paymentIntent.metadata || {};
-
-    if (!userId || !cartId) {
+    const { userId, cartQrcode, totalAmount } = paymentIntent.metadata || {};
+    console.log(userId, cartQrcode, totalAmount)
+    if (!userId || !cartQrcode) {
       throw new Error('Missing metadata in payment intent');
     }
 
@@ -57,7 +57,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
     );
 
     // Clear the cart after successful payment
-    await clearCartById(cartId);
+    await clearCart(userId);
 
     // Send payment success notification
     await sendPaymentSuccessNotification(userId, order._id.toString());
@@ -72,7 +72,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
     }
 
     console.log(`Order created successfully: ${order._id}`);
-    console.log(`Cart cleared successfully: ${cartId}`);
+    console.log(`Cart cleared successfully: ${userId}`);
   } catch (error) {
     console.error('Error handling payment intent succeeded:', error);
     throw error;
