@@ -30,9 +30,11 @@ export const io = new Server(server, {
 
 export let notificationSocketService: NotificationSocketService;
 
+// Top-level, before the try block
+export const cartNamespace = io.of('/cart');
+
 try {
     // Create separate namespaces for each service
-    const cartNamespace = io.of('/cart');
     const shelfNamespace = io.of('/shelf');
     const notificationNamespace = io.of('/notifications');
     

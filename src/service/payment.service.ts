@@ -6,6 +6,7 @@ import { getProductById, updateProduct } from './product.service';
 import { createOrder } from './order.service';
 import { io } from '../app';
 import { sendPaymentSuccessNotification, sendPaymentFailedNotification } from './notification-integration.service';
+import { cartNamespace } from '../app';
 
 // Initialize Stripe with your secret key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
@@ -35,8 +36,8 @@ export async function handleWebhookEvent(event: Stripe.Event) {
 async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent) {
   console.log(`Payment succeeded: ${paymentIntent.id}`);
   try {
-    const { userId, cartQrcode, totalAmount } = paymentIntent.metadata || {};
-    console.log(userId, cartQrcode, totalAmount)
+    const { userId, cartQrcode } = paymentIntent.metadata || {};
+    console.log(userId, cartQrcode)
     if (!userId || !cartQrcode) {
       throw new Error('Missing metadata in payment intent');
     }
@@ -51,7 +52,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
     const order = await createOrder(
       userId,
       cart.items,
-      parseFloat(totalAmount || '0'),
+      cart.totalPrice,
       paymentIntent.id,
       'SMART MART'
     );
@@ -63,7 +64,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
     await sendPaymentSuccessNotification(userId, order._id.toString());
 
     // send payment success event to socket
-    io.to(userId).emit('payment_success', { orderId: order._id });
+    cartNamespace.to(userId).emit('payment_success', { orderId: order._id });
     
     // TODO: update product stock quantity
     for (const item of order.items) {
