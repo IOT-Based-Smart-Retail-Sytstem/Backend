@@ -14,8 +14,8 @@ import { Server } from 'socket.io';
 import { SocketService } from './service/socket/cart.socket.service';
 import { ShelfSocketService } from './service/socket/shelf.socket.service';
 import { NotificationSocketService } from './service/socket/notification.socket.service';
-import { TestSocketService } from './service/socket/test.socket.service';
-import { performanceMonitor, performanceMiddleware } from './utils/performance-monitor';
+//import { TestSocketService } from './service/socket/test.socket.service';
+//import { performanceMonitor, performanceMiddleware } from './utils/performance-monitor';
 
 const app = express();
 const server = http.createServer(app);
@@ -48,21 +48,21 @@ try {
     log.info('NotificationSocketService started successfully');
 
     // Initialize test socket service (no authentication required)
-    new TestSocketService(testNamespace);
-    log.info('TestSocketService started successfully');
+   // new TestSocketService(testNamespace);
+    //log.info('TestSocketService started successfully');
 } catch (error) {
     log.error(`Failed to initialize Socket services: ${error instanceof Error ? error.message : String(error)}`);
     process.exit(1);
 }
 
 // Start performance monitoring
-performanceMonitor.startMonitoring();
+//performanceMonitor.startMonitoring();
 
 // Configure cors
 app.use(cors());
 
 // Add performance monitoring middleware
-app.use(performanceMiddleware);
+//app.use(performanceMiddleware);
 
 app.use((req, res, next) => {
     if (req.originalUrl === '/api/payment/webhook') {
