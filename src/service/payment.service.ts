@@ -58,7 +58,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
     );
 
     // Clear the cart after successful payment
-    await clearCart(userId);
+    // await clearCart(userId);
 
     // Send payment success notification
     await sendPaymentSuccessNotification(userId, order._id.toString());
